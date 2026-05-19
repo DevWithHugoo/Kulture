@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kulture — Culture générale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { font-family: 'DM Sans', 'Segoe UI', sans-serif; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes scaleIn { from { opacity:0; transform:scale(0.97); } to { opacity:1; transform:scale(1); } }
+    .card-hover { transition: background 0.2s, border-color 0.2s; cursor: pointer; }
+    .card-hover:hover { opacity: 0.85; }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .ans-btn:hover { opacity: 0.85; }
+    ::-webkit-scrollbar { width: 0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // ─── THEMES ──────────────────────────────────────────────────────────────────
+    const DARK = {
+      bg: "#080C14", surface: "#0D1420", surfaceHover: "#111927",
+      border: "#1A2540", borderLight: "#1E2D4A",
+      blue: "#1B4FD8", blueLight: "#2563EB", blueDim: "rgba(27,79,216,0.08)", blueBorder: "rgba(27,79,216,0.2)",
+      text: "#F0F4FF", textMuted: "#4A5980", textSub: "#7A8BB0",
+      success: "#0EA672", successDim: "rgba(14,166,114,0.1)",
+      error: "#E03E3E", errorDim: "rgba(224,62,62,0.1)",
+      gold: "#C9A84C", goldDim: "rgba(201,168,76,0.08)",
+    };
+    const LIGHT = {
+      bg: "#FAF7F2", surface: "#FFFFFF", surfaceHover: "#F5F0E8",
+      border: "#E8E0D0", borderLight: "#D9CDB8",
+      blue: "#1B4FD8", blueLight: "#2563EB", blueDim: "rgba(27,79,216,0.07)", blueBorder: "rgba(27,79,216,0.18)",
+      text: "#1A1A2E", textMuted: "#8A8070", textSub: "#5A5040",
+      success: "#0EA672", successDim: "rgba(14,166,114,0.1)",
+      error: "#E03E3E", errorDim: "rgba(224,62,62,0.1)",
+      gold: "#A07828", goldDim: "rgba(160,120,40,0.08)",
+    };
+
+    // ─── ART & CULTURE MODULES ────────────────────────────────────────────────────
+    const ART_MODULES = [
+      {
+        id: "art_1", title: "La Renaissance", emoji: "🎨", tag: "ART",
+        definition: "Mouvement culturel et artistique né en Italie au XIVe siècle, marqué par un retour aux idéaux de l'Antiquité greco-romaine et une révolution de la représentation humaine.",
+        explanation: "La Renaissance place l'Homme au centre de la création — c'est l'humanisme. Les artistes maîtrisent la perspective, l'anatomie et la lumière comme jamais auparavant. Florence, Rome et Venise deviennent les capitales de ce renouveau.",
+        detail: "On distingue la Proto-Renaissance (Giotto, XIVe), la Renaissance florentine (Botticelli, Donatello, XVe) et la Haute Renaissance (Léonard, Michel-Ange, Raphaël, début XVIe). Le mécénat des Médicis à Florence joua un rôle décisif dans le financement des artistes.",
+        example: "La Chapelle Sixtine (1508-1512), peinte par Michel-Ange à la demande du pape Jules II, représente le sommet de la peinture de la Haute Renaissance avec plus de 300 figures humaines au plafond.",
+        questions: [
+          { q: "Où la Renaissance est-elle née ?", options: ["En France", "En Italie", "En Espagne", "En Angleterre"], answer: 1, explanation: "La Renaissance naît à Florence, en Italie, grâce notamment au mécénat des Médicis et à la redécouverte des textes antiques." },
+          { q: "Qu'est-ce que la perspective en peinture ?", options: ["Un style de portrait", "La technique de représentation de la profondeur sur une surface plane", "L'utilisation du noir et blanc", "Une forme de sculpture"], answer: 1, explanation: "La perspective linéaire, codifiée par Brunelleschi et Alberti, permet de représenter l'espace en trois dimensions sur une toile." },
+          { q: "Lequel n'est pas un artiste de la Haute Renaissance ?", options: ["Léonard de Vinci", "Raphaël", "Caravage", "Michel-Ange"], answer: 2, explanation: "Caravage (1571-1610) appartient au Baroque, courant qui succède à la Renaissance. Les trois autres sont les piliers de la Haute Renaissance." },
+          { q: "L'humanisme de la Renaissance consiste à :", options: ["Rejeter la religion", "Placer l'être humain au centre de la réflexion et de l'art", "Peindre uniquement des paysages", "Imiter les artistes du Moyen Âge"], answer: 1, explanation: "L'humanisme redécouvre les textes antiques et place l'Homme — sa raison, sa dignité, son corps — comme sujet central de la pensée et de l'art." },
+          { q: "Quel sujet La Naissance de Vénus de Botticelli représente-t-elle ?", options: ["La Vierge Marie", "La déesse de l'amour émergeant de la mer", "Une reine florentine", "Une scène biblique"], answer: 1, explanation: "Peinte vers 1484-1486, l'œuvre de Botticelli représente Vénus (Aphrodite) naissant de l'écume de la mer — un thème mythologique révolutionnaire pour l'époque." },
+        ],
+      },
+      {
+        id: "art_2", title: "L'impressionnisme", emoji: "🌅", tag: "ART",
+        definition: "Mouvement pictural français de la seconde moitié du XIXe siècle, caractérisé par la capture des effets de lumière et de l'instant, avec une touche libre et des couleurs vives.",
+        explanation: "Rejetés par l'Académie officielle, ces peintres exposent ensemble à partir de 1874. Ils peignent en plein air (en plein-air), privilégient les scènes de la vie moderne et capturent la lumière changeante plutôt que le dessin rigoureux.",
+        detail: "Le terme 'impressionnisme' vient d'une critique moqueuse du tableau Impression, soleil levant de Monet (1872). Le mouvement influence profondément l'art moderne et prépare le post-impressionnisme de Cézanne, Gauguin et Van Gogh.",
+        example: "Les Nymphéas de Claude Monet, série de plus de 250 peintures créées à Giverny entre 1896 et 1926, poussent l'impressionnisme vers l'abstraction et sont présentées en panorama au musée de l'Orangerie à Paris.",
+        questions: [
+          { q: "D'où vient le terme 'impressionnisme' ?", options: ["D'un manifeste d'artistes", "Du titre d'un tableau de Monet, utilisé par un critique moqueur", "Du nom d'une galerie parisienne", "D'un ministre de la Culture"], answer: 1, explanation: "En 1874, le critique Louis Leroy se moque du tableau 'Impression, soleil levant' de Monet et forge ironiquement le terme — qui sera adopté par les artistes eux-mêmes." },
+          { q: "Quelle est une caractéristique majeure de la peinture impressionniste ?", options: ["Des contours très précis et un dessin académique", "La capture de la lumière et de l'instant avec une touche libre", "L'utilisation exclusive de couleurs sombres", "La peinture uniquement de sujets religieux"], answer: 1, explanation: "Les impressionnistes cherchent à saisir la fugacité de la lumière et de l'atmosphère plutôt qu'à représenter fidèlement les détails." },
+          { q: "Qui n'est pas un peintre impressionniste ?", options: ["Claude Monet", "Edgar Degas", "Pablo Picasso", "Auguste Renoir"], answer: 2, explanation: "Picasso est le fondateur du cubisme (XXe siècle), courant très différent de l'impressionnisme. Monet, Degas et Renoir sont des piliers du mouvement impressionniste." },
+          { q: "Que signifie peindre 'en plein air' ?", options: ["Dans un musée", "À l'extérieur, directement face au motif naturel", "À la lumière artificielle", "Sur de grandes toiles murales"], answer: 1, explanation: "Peindre en plein air (pleinairisme) permet de capturer les effets de lumière naturelle changeante, impossible à reproduire en atelier." },
+          { q: "Où est conservée la grande collection de Nymphéas de Monet à Paris ?", options: ["Le Louvre", "Le musée d'Orsay", "Le musée de l'Orangerie", "Le Centre Pompidou"], answer: 2, explanation: "Le musée de l'Orangerie accueille les grandes décorations des Nymphéas depuis 1927, dans deux salles ovales conçues selon les instructions de Monet lui-même." },
+        ],
+      },
+      {
+        id: "art_3", title: "Le Baroque", emoji: "🏛️", tag: "ART",
+        definition: "Style artistique et architectural né en Italie vers 1600, marqué par le mouvement, la théâtralité, l'exubérance décorative et les contrastes dramatiques de lumière.",
+        explanation: "Le Baroque émerge dans le contexte de la Contre-Réforme catholique : l'Église utilise l'art pour émouvoir les fidèles et affirmer sa puissance face au protestantisme. Les œuvres cherchent à toucher les sens et susciter des émotions fortes.",
+        detail: "En peinture, le clair-obscur (chiaroscuro) de Caravage révolutionne la représentation. En architecture, Bernin transforme Rome avec des œuvres comme la Colonnade de Saint-Pierre. En musique, Bach et Haendel portent le baroque à son apogée.",
+        example: "L'Extase de Sainte Thérèse du Bernin (1647-1652), dans l'église Santa Maria della Vittoria à Rome, illustre parfaitement le Baroque : marbre semblant flotter, drapés vibrants, expression mystique intense, lumière dorée dramatique.",
+        questions: [
+          { q: "Dans quel contexte religieux le Baroque émerge-t-il ?", options: ["La Réforme protestante", "La Contre-Réforme catholique", "Les croisades", "Le concile de Nicée"], answer: 1, explanation: "L'Église catholique utilise l'art baroque pour reconquérir les fidèles face à la montée du protestantisme, en créant des œuvres grandioses et émotionnellement puissantes." },
+          { q: "Le clair-obscur en peinture baroque consiste à :", options: ["Utiliser uniquement le noir et blanc", "Créer des contrastes dramatiques entre zones éclairées et zones sombres", "Peindre des paysages nocturnes", "Représenter des scènes de nuit uniquement"], answer: 1, explanation: "Le clair-obscur (chiaroscuro), maîtrisé par Caravage puis Rembrandt, crée une lumière dramatique qui semble surgir des ténèbres." },
+          { q: "Quel architecte baroque a redessiné une grande partie de Rome ?", options: ["Palladio", "Le Corbusier", "Bernin", "Brunelleschi"], answer: 2, explanation: "Gian Lorenzo Bernini (le Bernin) a transformé Rome avec la place Saint-Pierre, la fontaine des Quatre-Fleuves et de nombreuses sculptures et églises." },
+          { q: "Quel compositeur est associé au Baroque musical ?", options: ["Beethoven", "Bach", "Chopin", "Debussy"], answer: 1, explanation: "Johann Sebastian Bach (1685-1750) est l'une des figures majeures du baroque musical, avec ses fugues, cantates et la Passion selon saint Matthieu." },
+          { q: "La théâtralité du Baroque se manifeste par :", options: ["La simplicité et le dépouillement", "Le mouvement, les drapés expressifs et les expressions intenses", "L'absence de décoration", "Une palette de couleurs limitée"], answer: 1, explanation: "Le Baroque cherche à créer un effet de spectacle : figures en mouvement, tissus qui semblent flotter, expressions faciales intenses pour capter l'émotion." },
+        ],
+      },
+      {
+        id: "art_4", title: "L'architecture gothique", emoji: "⛪", tag: "ART",
+        definition: "Style architectural médiéval né en France au XIIe siècle, caractérisé par les arcs brisés, les voûtes en ogive et les grandes verrières qui permettent d'élever les édifices religieux vers le ciel.",
+        explanation: "Le gothique succède au roman. Trois innovations techniques le rendent possible : l'arc brisé (plus solide), la croisée d'ogives (voûtes plus légères) et l'arc-boutant (contrefort extérieur qui reporte les poussées). Ensemble, ils permettent des murs plus minces et de larges fenêtres.",
+        detail: "On distingue le gothique primitif (Saint-Denis, années 1140), le gothique classique (Notre-Dame de Paris, Chartres), le gothique rayonnant avec ses rosaces spectaculaires (Sainte-Chapelle) et le gothique flamboyant aux décors très ornementés.",
+        example: "Notre-Dame de Paris (1163-1345) est le symbole du gothique classique : façade aux trois portails sculptés, rosaces, arcs-boutants, deux tours de 69 mètres. L'incendie de 2019 et la restauration en 2024 ont rappelé l'importance de ce patrimoine.",
+        questions: [
+          { q: "Quelle innovation permet aux murs gothiques d'être beaucoup plus minces ?", options: ["L'arc plein cintre", "L'arc-boutant qui reporte les poussées à l'extérieur", "L'utilisation du bois", "La fondation plus profonde"], answer: 1, explanation: "L'arc-boutant est un arc extérieur qui prend en charge les poussées exercées par les voûtes, libérant les murs de cette contrainte et permettant de les percer de grandes fenêtres." },
+          { q: "Qu'est-ce qu'une rosace ?", options: ["Un type d'arc brisé", "Une grande fenêtre circulaire en vitrail, typique de l'art gothique", "Une sculpture de façade", "Un type de colonne"], answer: 1, explanation: "La rosace est une fenêtre circulaire ornée de vitraux en forme de pétales de rose, créant un effet lumineux spectaculaire à l'intérieur des cathédrales." },
+          { q: "Où est né le gothique ?", options: ["En Allemagne", "En Angleterre", "En France (région Île-de-France)", "En Italie"], answer: 2, explanation: "Le gothique naît à Saint-Denis (Île-de-France) vers 1140 sous l'impulsion de l'abbé Suger, qui voulait une église baignée de lumière divine." },
+          { q: "La croisée d'ogives est :", options: ["Un type de fenêtre", "Le croisement de deux arcs diagonaux qui soutiennent la voûte", "Une sculpture centrale", "Un type de portail"], answer: 1, explanation: "La croisée d'ogives permet de reporter le poids de la voûte sur quatre piliers, rendant la voûte plus légère et les murs plus libres." },
+          { q: "Le gothique flamboyant, apparu au XVe siècle, se distingue par :", options: ["Sa simplicité extrême", "Ses décors très ornementés, aux formes rappelant des flammes", "L'absence de vitraux", "Ses arcs en plein cintre"], answer: 1, explanation: "Le gothique flamboyant (fin du Moyen Âge) pousse l'ornementation à l'extrême avec des remplages sinueux qui évoquent des flammes." },
+        ],
+      },
+      {
+        id: "art_5", title: "Le cubisme", emoji: "🔷", tag: "ART",
+        definition: "Mouvement artistique révolutionnaire du début du XXe siècle, fondé par Picasso et Braque, représentant les objets sous plusieurs angles simultanément, fragmentés en formes géométriques.",
+        explanation: "Le cubisme rompt avec la perspective traditionnelle héritée de la Renaissance. Au lieu de montrer un objet d'un seul point de vue, le cubisme le décompose et le réassemble, montrant simultanément plusieurs faces. C'est une révolution conceptuelle : comment on sait que l'objet est, plutôt que comment on le voit.",
+        detail: "On distingue le cubisme analytique (1909-1912) aux couleurs neutres et formes très fragmentées, et le cubisme synthétique (1912-1914) plus coloré, qui intègre des collages. Les Demoiselles d'Avignon de Picasso (1907) est souvent cité comme précurseur du mouvement.",
+        example: "Guernica de Picasso (1937), grande toile en noir, blanc et gris de 3,49 × 7,76 m, utilise le langage cubiste pour témoigner du bombardement de la ville basque de Guernica pendant la guerre civile espagnole. C'est l'une des œuvres politiques les plus puissantes du XXe siècle.",
+        questions: [
+          { q: "Qui sont les fondateurs du cubisme ?", options: ["Monet et Renoir", "Picasso et Braque", "Dalí et Miró", "Matisse et Dufy"], answer: 1, explanation: "Pablo Picasso et Georges Braque développent ensemble le cubisme entre 1908 et 1914 dans un dialogue artistique intense." },
+          { q: "Le cubisme rompt avec quelle tradition picturale ?", options: ["L'art abstrait", "La perspective unique héritée de la Renaissance", "Le pointillisme", "La sculpture classique"], answer: 1, explanation: "Depuis la Renaissance, la peinture représentait le monde d'un seul point de vue fixe. Le cubisme montre simultanément plusieurs angles, révolutionnant l'art occidental." },
+          { q: "Les Demoiselles d'Avignon (1907) de Picasso est considérée comme :", options: ["La première peinture impressionniste", "Une précurseur du cubisme", "Une œuvre baroque tardive", "La première peinture abstraite"], answer: 1, explanation: "Ce tableau choc, avec ses figures aux visages déformés influencés par l'art africain, annonce les déstructurations cubistes." },
+          { q: "Qu'intègre le cubisme synthétique (à partir de 1912) ?", options: ["Des sculptures en bronze", "Des collages de matériaux réels (papier journal, tissu)", "De la peinture dorée", "Des photos"], answer: 1, explanation: "Picasso et Braque inventent le collage (papier collé) dans le cubisme synthétique, intégrant des fragments de réalité dans la peinture." },
+          { q: "Guernica de Picasso a été peinte en réponse à :", options: ["La Première Guerre mondiale", "Le bombardement de la ville basque de Guernica en 1937", "La mort d'un ami", "La révolution française"], answer: 1, explanation: "En avril 1937, l'aviation nazie bombarde la ville civile de Guernica. Picasso peint cette œuvre comme cri de protestation contre la barbarie de la guerre." },
+        ],
+      },
+      {
+        id: "art_6", title: "Le surréalisme", emoji: "🌀", tag: "ART",
+        definition: "Mouvement littéraire et artistique des années 1920-1940, cherchant à libérer l'inconscient et le rêve pour créer une réalité supérieure (sur-réalité) au-delà de la logique rationnelle.",
+        explanation: "Influencé par la psychanalyse de Freud, le surréalisme explore le rêve, le hasard et l'inconscient comme sources de création. André Breton publie le Manifeste du surréalisme en 1924. Les œuvres mélangent réel et imaginaire de façon troublante et onirique.",
+        detail: "Les techniques surréalistes incluent l'écriture automatique (écrire sans contrôler la raison), le cadavre exquis (œuvre collective où chacun continue sans voir ce qu'a fait l'autre) et la paranoïa critique de Dalí (provoquer volontairement des hallucinations). Magritte, Dalí, Ernst et Kahlo en sont les figures majeures.",
+        example: "La Persistance de la mémoire de Salvador Dalí (1931) montre des montres molles fondant dans un paysage désertique : c'est une image de rêve logique en elle-même, qui questionne notre rapport au temps et à la réalité. L'œuvre est conservée au MoMA de New York.",
+        questions: [
+          { q: "Quelle discipline influence principalement le surréalisme ?", options: ["Les mathématiques", "La psychanalyse (Freud)", "L'astronomie", "L'économie"], answer: 1, explanation: "Freud et ses théories sur l'inconscient, le rêve et le refoulement ont profondément influencé les surréalistes, qui cherchent à libérer le 'surréel' enfoui dans l'esprit." },
+          { q: "Qui publie le Manifeste du surréalisme en 1924 ?", options: ["Salvador Dalí", "André Breton", "Max Ernst", "René Magritte"], answer: 1, explanation: "André Breton, 'pape du surréalisme', définit le mouvement dans son Manifeste de 1924 comme 'automatisme psychique pur'." },
+          { q: "Que représente La Persistance de la mémoire de Dalí ?", options: ["Des montres solaires dans un paysage espagnol", "Des montres molles fondant dans un paysage onirique", "Un portrait d'horloge de gare", "Des miroirs reflétant le temps"], answer: 1, explanation: "Les montres molles de Dalí symbolisent la fluidité du temps dans le rêve, s'opposant à la rigidité mécanique du temps réel." },
+          { q: "L'écriture automatique surréaliste consiste à :", options: ["Écrire très vite pour être efficace", "Écrire sans contrôle de la raison, en laissant libre cours à l'inconscient", "Utiliser une machine à écrire", "Copier des textes anciens"], answer: 1, explanation: "L'automatisme psychique vise à court-circuiter la censure rationnelle pour laisser parler l'inconscient directement sur la page ou la toile." },
+          { q: "Ceci n'est pas une pipe — de Magritte interroge :", options: ["L'utilité des pipes", "Le rapport entre la représentation et la réalité", "La publicité pour le tabac", "La calligraphie"], answer: 1, explanation: "Magritte peint une pipe et écrit dessous 'Ceci n'est pas une pipe' : effectivement, c'est une image d'une pipe, pas une pipe réelle. L'œuvre questionne la nature de la représentation." },
+        ],
+      },
+      {
+        id: "art_7", title: "La musique classique", emoji: "🎼", tag: "ART",
+        definition: "Tradition musicale occidentale savante couvrant principalement la période de 1750 à 1820 (classicisme), mais désignant aussi plus largement la musique de concert académique de la Renaissance au XXe siècle.",
+        explanation: "Au sens strict, la période classique (Haydn, Mozart, Beethoven) succède au Baroque et précède le Romantisme. Elle se caractérise par l'équilibre, la clarté formelle et des formes comme la sonate et la symphonie. Mozart compose 626 œuvres en seulement 35 ans de vie.",
+        detail: "La musique occidentale suit une évolution : Grégorien (Moyen Âge) → Polyphonie (Renaissance) → Baroque (Bach, Haendel, Vivaldi) → Classicisme (Haydn, Mozart, Beethoven) → Romantisme (Chopin, Liszt, Wagner) → Modernisme (Debussy, Stravinsky, Schoenberg).",
+        example: "La 9e Symphonie de Beethoven (1824), composée quand il était totalement sourd, est considérée comme l'une des œuvres les plus importantes de l'histoire de la musique. Son dernier mouvement avec le chœur 'Ode à la joie' est devenu l'hymne de l'Union Européenne.",
+        questions: [
+          { q: "Qui est parfois appelé le 'père de la symphonie' ?", options: ["Mozart", "Beethoven", "Haydn", "Bach"], answer: 2, explanation: "Joseph Haydn (1732-1809) a développé et codifié la forme symphonique. Il a composé 104 symphonies et formé Mozart et Beethoven." },
+          { q: "En quelle période Beethoven compose-t-il sa 9e Symphonie ?", options: ["En pleine jeunesse", "Alors qu'il était totalement sourd", "En exil à Paris", "Après avoir retrouvé l'ouïe"], answer: 1, explanation: "Beethoven perd progressivement l'ouïe à partir de 1796 et est totalement sourd quand il compose sa 9e Symphonie, créée en 1824." },
+          { q: "La sonate est :", options: ["Un opéra en un acte", "Une composition instrumentale en plusieurs mouvements", "Une danse baroque", "Un chant choral"], answer: 1, explanation: "La sonate (du latin 'sonare', jouer) est une composition pour un ou deux instruments en général trois à quatre mouvements de tempos contrastés." },
+          { q: "Qui compose Les Quatre Saisons ?", options: ["Bach", "Haendel", "Vivaldi", "Mozart"], answer: 2, explanation: "Antonio Vivaldi (1678-1741) compose Les Quatre Saisons vers 1720, quatre concertos pour violon qui décrivent musicalement chaque saison." },
+          { q: "L'Ode à la joie est l'hymne de :", options: ["La France", "L'ONU", "L'Union Européenne", "L'Allemagne"], answer: 2, explanation: "Tiré du 4e mouvement de la 9e Symphonie de Beethoven, le thème de 'l'Ode à la joie' a été adopté comme hymne européen en 1972." },
+        ],
+      },
+      {
+        id: "art_8", title: "La littérature classique", emoji: "📚", tag: "ART",
+        definition: "Corpus des œuvres littéraires considérées comme fondatrices et exemplaires d'une culture, de l'Antiquité aux grandes œuvres modernes, transmises et étudiées de génération en génération.",
+        explanation: "Les œuvres classiques traversent les époques car elles abordent des thèmes universels : l'amour, la mort, la justice, le pouvoir, la condition humaine. De l'Iliade d'Homère aux romans du XIXe siècle, elles forment le socle de la culture occidentale.",
+        detail: "Les grands courants littéraires : Antiquité (Homère, Sophocle, Virgile) → Humanisme et Renaissance (Rabelais, Montaigne) → Classicisme français (Molière, Racine, La Fontaine) → Lumières (Voltaire, Rousseau) → Romantisme (Hugo, Balzac) → Réalisme/Naturalisme (Flaubert, Zola) → Modernisme (Proust, Kafka, Joyce).",
+        example: "À la recherche du temps perdu de Marcel Proust (1913-1927), roman-fleuve en sept volumes, explore la mémoire, le temps et l'art à travers la vie du narrateur. La 'madeleine de Proust' est devenue une métaphore culturelle universelle pour la mémoire involontaire.",
+        questions: [
+          { q: "Qui a écrit L'Iliade et L'Odyssée ?", options: ["Virgile", "Sophocle", "Homère", "Platon"], answer: 2, explanation: "Homère, poète grec légendaire (VIIIe siècle av. J.-C.), est l'auteur présumé de ces deux épopées fondatrices de la littérature occidentale." },
+          { q: "Le classicisme français (XVIIe siècle) valorise :", options: ["Le désordre créatif", "Les règles, l'équilibre, la raison et l'imitation des Anciens", "L'expression des passions débridées", "Le mystère et le surnaturel"], answer: 1, explanation: "Le classicisme français (Molière, Racine, La Fontaine) recherche la clarté, la bienséance, l'unité et l'imitation des modèles grecs et latins." },
+          { q: "Qui écrit Les Misérables ?", options: ["Balzac", "Zola", "Victor Hugo", "Stendhal"], answer: 2, explanation: "Victor Hugo publie Les Misérables en 1862. Ce roman romantique et social suit Jean Valjean dans la France du XIXe siècle." },
+          { q: "Le réalisme littéraire (XIXe siècle) cherche à :", options: ["Raconter des histoires fantastiques", "Décrire la société telle qu'elle est, avec ses contradictions sociales", "Idéaliser les personnages", "Imiter la poésie antique"], answer: 1, explanation: "Des auteurs comme Flaubert, Balzac et Stendhal décrivent avec précision la société de leur époque, ses classes sociales, ses hypocrisies et ses conflits." },
+          { q: "La 'madeleine de Proust' est une métaphore de :", options: ["Un gâteau célèbre", "La mémoire involontaire déclenchée par une sensation", "Une technique d'écriture", "Un personnage de roman"], answer: 1, explanation: "Dans Du côté de chez Swann (1913), une madeleine trempée dans du thé provoque chez le narrateur un flot de souvenirs d'enfance — image emblématique de la mémoire involontaire." },
+        ],
+      },
+      {
+        id: "art_9", title: "Le cinéma — 7e art", emoji: "🎬", tag: "ART",
+        definition: "Art de la création d'images animées, inventé à la fin du XIXe siècle, qui combine narration, image, son et montage pour raconter des histoires ou exprimer des visions artistiques.",
+        explanation: "Le cinéma est inventé par les frères Lumière en 1895. Il évolue rapidement : du muet au parlant (1927), du noir et blanc à la couleur, du film artisanal aux blockbusters numériques. C'est à la fois un art, une industrie et un miroir des sociétés.",
+        detail: "Grands courants : cinéma muet (Chaplin, Murnau, Eisenstein) → âge d'or hollywoodien (Hitchcock, Welles) → Nouvelle Vague française (Godard, Truffaut) → Nouvel Hollywood (Coppola, Kubrick, Scorsese) → cinéma mondial contemporain. La Palme d'or à Cannes et l'Oscar sont les récompenses les plus prestigieuses.",
+        example: "Citizen Kane d'Orson Welles (1941), réalisé alors qu'il avait 25 ans, est régulièrement cité comme le plus grand film de l'histoire du cinéma. Il a révolutionné le langage cinématographique avec ses innovations de cadrage, de narration non linéaire et d'effets de profondeur de champ.",
+        questions: [
+          { q: "Qui invente le cinéma en 1895 ?", options: ["Thomas Edison", "Georges Méliès", "Les frères Lumière", "Charlie Chaplin"], answer: 2, explanation: "Auguste et Louis Lumière organisent la première projection publique payante le 28 décembre 1895 au Grand Café de Paris avec leur Cinématographe." },
+          { q: "Le premier film sonore est projeté en :", options: ["1895", "1915", "1927", "1939"], answer: 2, explanation: "Le Chanteur de Jazz (1927) est le premier film sonore commercial. Il marque la fin de l'ère du cinéma muet." },
+          { q: "La Nouvelle Vague française des années 1960 est caractérisée par :", options: ["Des superproductions hollywoodiennes", "Un cinéma indépendant, tourné en extérieur avec de petits budgets", "Des films muets en noir et blanc", "Des adaptations de romans classiques"], answer: 1, explanation: "Godard, Truffaut et leurs contemporains révolutionnent le cinéma en tournant en extérieur, avec des budgets réduits et une grande liberté narrative." },
+          { q: "Citizen Kane est réalisé par :", options: ["Alfred Hitchcock", "Stanley Kubrick", "Orson Welles", "Billy Wilder"], answer: 2, explanation: "Orson Welles réalise Citizen Kane en 1941 à 25 ans. Ce film est souvent considéré comme le plus influent de l'histoire du cinéma pour ses innovations techniques." },
+          { q: "La Palme d'or est la récompense suprême de quel festival ?", options: ["Venise", "Berlin", "Cannes", "Sundance"], answer: 2, explanation: "La Palme d'or est remise chaque année au Festival de Cannes, le plus célèbre festival international de cinéma, créé en 1946." },
+        ],
+      },
+      {
+        id: "art_10", title: "La sculpture — de l'Antiquité au contemporain", emoji: "🗿", tag: "ART",
+        definition: "Art de créer des formes en trois dimensions par taille, modelage, assemblage ou moulage, dans des matériaux variés comme la pierre, le bronze, le bois, la terre cuite ou des matériaux contemporains.",
+        explanation: "La sculpture accompagne toutes les civilisations : les Grecs atteignent une perfection anatomique (Vénus de Milo, Discobole), Rome adapte et popularise ces modèles, le Moyen Âge intègre la sculpture dans l'architecture religieuse, la Renaissance la libère (Michel-Ange), et l'époque contemporaine explose les formes.",
+        detail: "Les techniques principales sont : la taille (retirer de la matière dans un bloc), le modelage (construire avec de l'argile), le moulage (couler un matériau liquide dans un moule) et l'assemblage (associer des éléments préexistants). Rodin révolutionne la sculpture au XIXe siècle ; Brancusi et Giacometti au XXe.",
+        example: "Le David de Michel-Ange (1501-1504), sculpture en marbre de 5,17 m de haut conservée à Florence, représente le héros biblique avant sa victoire sur Goliath. Avec sa musculature parfaite, l'œuvre est un sommet de la sculpture de la Renaissance.",
+        questions: [
+          { q: "Quelle est la technique qui consiste à retirer de la matière d'un bloc ?", options: ["Le modelage", "La taille", "Le moulage", "L'assemblage"], answer: 1, explanation: "La taille directe (dans la pierre, le marbre, le bois) consiste à ôter de la matière, à l'inverse du modelage qui ajoute." },
+          { q: "La Vénus de Milo est une sculpture :", options: ["Romaine du IIe siècle av. J.-C.", "Grecque du IIe siècle av. J.-C.", "De la Renaissance italienne", "Baroque du XVIIe siècle"], answer: 1, explanation: "La Vénus de Milo, découverte en 1820 sur l'île grecque de Milos, date d'environ 130-100 av. J.-C. et est conservée au musée du Louvre." },
+          { q: "Quel sculpteur crée Le Penseur et Les Bourgeois de Calais ?", options: ["Michel-Ange", "Bernin", "Auguste Rodin", "Brancusi"], answer: 2, explanation: "Auguste Rodin (1840-1917), sculpteur français, révolutionne la sculpture avec ses surfaces expressives, ses jeux de lumière et sa représentation intense des émotions humaines." },
+          { q: "Le David de Michel-Ange représente le moment :", options: ["Après la victoire sur Goliath", "Avant le combat, dans la concentration et la tension", "Pendant le combat", "La mort de David"], answer: 1, explanation: "Michel-Ange choisit l'instant de tension avant le combat : David regarde son adversaire, concentré et prêt. C'est un moment psychologique, pas héroïque au sens traditionnel." },
+          { q: "L'assemblage en sculpture consiste à :", options: ["Fondre du bronze", "Associer des éléments préexistants en une composition", "Modeler de l'argile", "Tailler de la pierre"], answer: 1, explanation: "L'assemblage, popularisé par Picasso et les artistes du XXe siècle, crée des sculptures à partir d'objets trouvés ou de matériaux industriels assemblés." },
+        ],
+      },
+    ];
+
+    // ─── HISTORY MODULES ──────────────────────────────────────────────────────────
+    const HISTORY_MODULES = [
+      {
+        id: "hist_1", title: "La Révolution française", emoji: "🗽", tag: "HISTOIRE",
+        definition: "Période de bouleversements politiques et sociaux radicaux en France (1789-1799), qui abolit la monarchie absolue, les privilèges féodaux et proclame les droits de l'Homme, influençant les révolutions du monde entier.",
+        explanation: "La France de 1789 est frappée par une grave crise financière et une famine. Le peuple, le clergé et la noblesse (les trois États) sont convoqués aux États Généraux. Le Tiers-État (le peuple) se proclame Assemblée nationale, prend la Bastille le 14 juillet et adopte la Déclaration des droits de l'Homme.",
+        detail: "On distingue plusieurs phases : Monarchie constitutionnelle (1789-1792) → Première République et Terreur (1792-1794, Robespierre, guillotine) → Directoire (1795-1799) → Coup d'État de Bonaparte (18 brumaire, 1799). La Révolution invente les concepts de citoyenneté, de nation et de droits universels.",
+        example: "La nuit du 4 août 1789 voit l'abolition des privilèges féodaux par l'Assemblée nationale : en quelques heures, la structure sociale millénaire de la France féodale s'effondre. La Déclaration des droits de l'Homme est adoptée le 26 août 1789.",
+        questions: [
+          { q: "Qu'est-ce que la Bastille, prise le 14 juillet 1789 ?", options: ["Le palais du roi", "Une prison-forteresse symbole de l'absolutisme royal", "Le siège du parlement", "Une caserne militaire"], answer: 1, explanation: "La Bastille était une forteresse-prison utilisée pour enfermer sans jugement les opposants au roi. Sa prise symbolise la révolte du peuple contre l'arbitraire royal." },
+          { q: "La Déclaration des droits de l'Homme (1789) proclame :", options: ["La supériorité du roi", "Que les hommes naissent libres et égaux en droits", "L'abolition de la propriété", "La création de la République"], answer: 1, explanation: "Le premier article proclame : 'Les hommes naissent et demeurent libres et égaux en droits.' C'est un texte fondateur du droit moderne." },
+          { q: "La Terreur (1793-1794) est associée à :", options: ["Napoléon Bonaparte", "Louis XVI", "Robespierre et le Comité de Salut Public", "Marie-Antoinette"], answer: 2, explanation: "Sous Robespierre, environ 17 000 personnes sont exécutées officiellement par guillotine. Robespierre lui-même est guillotiné le 27 juillet 1794 (9 Thermidor)." },
+          { q: "Les trois ordres de la société d'Ancien Régime étaient :", options: ["Roi, noblesse, peuple", "Clergé, noblesse, Tiers-État", "Armée, clergé, paysans", "Marchands, artisans, paysans"], answer: 1, explanation: "L'Ancien Régime divisait la société en trois états : le Clergé (1er), la Noblesse (2e) et le Tiers-État (3e, soit ~97 % de la population)." },
+          { q: "La Révolution se conclut avec :", options: ["La mort de Robespierre", "Le coup d'État de Bonaparte le 18 brumaire 1799", "La restauration de Louis XVI", "La paix de Paris"], answer: 1, explanation: "Le 9 novembre 1799 (18 brumaire an VIII), Napoléon Bonaparte renverse le Directoire et établit le Consulat, mettant fin officiellement à la Révolution." },
+        ],
+      },
+      {
+        id: "hist_2", title: "La Première Guerre mondiale", emoji: "⚔️", tag: "HISTOIRE",
+        definition: "Conflit armé mondial (1914-1918) opposant les Alliés (France, Royaume-Uni, Russie, puis États-Unis) aux Empires centraux (Allemagne, Autriche-Hongrie, Empire ottoman), causant environ 20 millions de morts.",
+        explanation: "Déclenchée par l'assassinat de l'archiduc François-Ferdinand à Sarajevo le 28 juin 1914, la guerre s'embrase via un système d'alliances en chaîne. Après quatre ans de guerre de tranchées meurtrière, les armistices et le Traité de Versailles (1919) redessinèrent la carte de l'Europe.",
+        detail: "La Première Guerre mondiale voit l'apparition de nouvelles armes terribles : gaz de combat, chars d'assaut, aviation militaire, sous-marins. La bataille de Verdun (1916) dure 10 mois et cause ~700 000 victimes. Le Traité de Versailles (1919), en humiliant l'Allemagne, prépare le terrain pour la Seconde Guerre mondiale.",
+        example: "La bataille de la Marne (septembre 1914) stoppe l'avance allemande vers Paris. Les 'taxis de la Marne' font partie du mythe : environ 600 taxis parisiens transportent 6 000 soldats au front, contribuant à l'arrêt de l'offensive.",
+        questions: [
+          { q: "L'assassinat de qui déclenche la Première Guerre mondiale ?", options: ["Le Kaiser Guillaume II", "Le tsar Nicolas II", "L'archiduc François-Ferdinand d'Autriche", "Le roi de Belgique"], answer: 2, explanation: "L'archiduc François-Ferdinand, héritier du trône austro-hongrois, est assassiné à Sarajevo le 28 juin 1914 par Gavrilo Princip, nationaliste serbe." },
+          { q: "La bataille de Verdun (1916) est connue pour :", options: ["La première victoire allemande", "Sa durée exceptionnelle et son bilan humain dévastateur (~700 000 victimes)", "La percée alliée décisive", "L'utilisation des tanks pour la première fois"], answer: 1, explanation: "Verdun (février-décembre 1916) est l'une des batailles les plus meurtrières de l'histoire, symbole de la guerre d'usure des tranchées." },
+          { q: "Quand les États-Unis entrent-ils dans la Première Guerre mondiale ?", options: ["1914", "1915", "1917", "1918"], answer: 2, explanation: "Les États-Unis entrent en guerre en avril 1917, notamment à cause de la guerre sous-marine à outrance de l'Allemagne et de la découverte du télégramme Zimmermann." },
+          { q: "Le Traité de Versailles (1919) impose à l'Allemagne :", options: ["Une alliance militaire avec la France", "Des réparations financières massives et des pertes territoriales", "Un siège permanent au Conseil de Sécurité", "La liberté totale de réarmer"], answer: 1, explanation: "L'Allemagne est déclarée seule responsable de la guerre, doit payer 132 milliards de marks-or et perd 13 % de son territoire — conditions qui alimenteront les rancœurs menant à Hitler." },
+          { q: "L'armistice mettant fin aux combats est signé :", options: ["Le 11 novembre 1918", "Le 14 juillet 1918", "Le 8 mai 1945", "Le 28 juin 1919"], answer: 0, explanation: "L'armistice est signé le 11 novembre 1918 à 11h dans un wagon de train en forêt de Compiègne, d'où l'expression '11e heure du 11e jour du 11e mois'." },
+        ],
+      },
+      {
+        id: "hist_3", title: "La Seconde Guerre mondiale", emoji: "🌍", tag: "HISTOIRE",
+        definition: "Conflit armé mondial (1939-1945) opposant les Alliés (France, Royaume-Uni, URSS, États-Unis) aux puissances de l'Axe (Allemagne nazie, Italie fasciste, Japon impérial), causant 70 à 85 millions de morts, dont 6 millions de Juifs dans la Shoah.",
+        explanation: "Hitler envahit la Pologne le 1er septembre 1939. La France tombe en juin 1940. Le tournant se produit en 1941 : Hitler attaque l'URSS (opération Barbarossa) et le Japon bombarde Pearl Harbor, faisant entrer les États-Unis en guerre. Le débarquement de Normandie (6 juin 1944) ouvre le front occidental. L'Allemagne capitule le 8 mai 1945.",
+        detail: "La Seconde Guerre mondiale est la plus meurtrière de l'histoire. La Shoah (génocide des Juifs d'Europe par les nazis) fait 6 millions de victimes dans les camps d'extermination (Auschwitz, Treblinka...). La guerre se termine avec les bombes atomiques sur Hiroshima (6 août) et Nagasaki (9 août 1945), forçant la capitulation japonaise.",
+        example: "Le Débarquement en Normandie du 6 juin 1944 (Jour-J) est la plus grande opération amphibie de l'histoire : 156 000 soldats alliés débarquent sur cinq plages normandes en un jour, ouvrant un second front décisif pour libérer l'Europe occidentale.",
+        questions: [
+          { q: "Quel événement déclenche officiellement la Seconde Guerre mondiale ?", options: ["L'annexion de l'Autriche en 1938", "L'invasion de la Pologne par Hitler le 1er septembre 1939", "L'attaque de Pearl Harbor", "La déclaration de guerre de la France à l'Allemagne"], answer: 1, explanation: "L'Allemagne envahit la Pologne le 1er septembre 1939. Le 3 septembre, la France et le Royaume-Uni déclarent la guerre à l'Allemagne." },
+          { q: "La Shoah désigne :", options: ["Les combats sur le front de l'Est", "Le génocide systématique des Juifs d'Europe par les nazis", "Les bombardements de Londres", "La résistance française"], answer: 1, explanation: "La Shoah (terme hébreu pour 'catastrophe') désigne l'extermination de 6 millions de Juifs par le régime nazi, dans le cadre de la 'Solution finale'." },
+          { q: "Qu'est-ce que l'opération Barbarossa (juin 1941) ?", options: ["Le débarquement en Normandie", "L'invasion allemande de l'URSS", "L'attaque de Pearl Harbor", "La campagne d'Afrique du Nord"], answer: 1, explanation: "Le 22 juin 1941, Hitler rompt le pacte germano-soviétique et envahit l'URSS avec 3 millions de soldats. Ce sera une erreur stratégique décisive : l'URSS résistera et retournera la guerre." },
+          { q: "La capitulation de l'Allemagne nazie est signée le :", options: ["6 juin 1944", "8 mai 1945", "15 août 1945", "2 septembre 1945"], answer: 1, explanation: "Le 8 mai 1945 (VE Day, Victory in Europe) marque la capitulation de l'Allemagne. C'est le 'Jour de la Victoire' célébré chaque année en Europe." },
+          { q: "Les bombes atomiques d'Hiroshima et Nagasaki sont larguées par :", options: ["L'URSS", "Le Royaume-Uni", "Les États-Unis", "La France"], answer: 2, explanation: "Les États-Unis larguent la bombe atomique 'Little Boy' sur Hiroshima le 6 août 1945 et 'Fat Man' sur Nagasaki le 9 août, causant ~200 000 morts et forçant la capitulation du Japon." },
+        ],
+      },
+      {
+        id: "hist_4", title: "La Révolution industrielle", emoji: "🏭", tag: "HISTOIRE",
+        definition: "Transformation profonde des modes de production et de la société, née en Angleterre au milieu du XVIIIe siècle, avec l'introduction de la machine à vapeur, de la mécanisation et du travail en usine.",
+        explanation: "La Révolution industrielle transforme une économie artisanale et agricole en une économie industrielle et urbaine. L'Angleterre est pionnière grâce à ses ressources en charbon, ses libertés commerciales et ses inventions (machine à vapeur de Watt, 1769). Puis elle se propage en Europe et en Amérique.",
+        detail: "La première révolution industrielle (1760-1840) est fondée sur la vapeur et le textile. La deuxième (1870-1914) est fondée sur l'électricité, l'acier et le pétrole (Ford, Taylor). Ces transformations créent le prolétariat industriel, les grandes villes, la pollution et inspireront Marx et le mouvement ouvrier.",
+        example: "La ligne de chemin de fer Liverpool-Manchester (1830) est la première ligne ferroviaire interurbaine à vapeur. En une décennie, le réseau ferroviaire britannique s'étend à des milliers de kilomètres, révolutionnant le commerce, les voyages et la notion même de distance.",
+        questions: [
+          { q: "Où la Révolution industrielle commence-t-elle ?", options: ["En France", "En Allemagne", "En Angleterre", "Aux États-Unis"], answer: 2, explanation: "L'Angleterre est pionnière grâce à ses réserves de charbon, ses libertés commerciales, sa flotte marchande et ses inventeurs comme James Watt." },
+          { q: "Qui améliore la machine à vapeur de façon décisive en 1769 ?", options: ["George Stephenson", "Thomas Edison", "James Watt", "Nikola Tesla"], answer: 2, explanation: "James Watt améliore considérablement l'efficacité de la machine à vapeur en 1769, rendant son usage industriel rentable et généralisé." },
+          { q: "La Révolution industrielle engendre :", options: ["Un retour à l'agriculture", "L'émergence du prolétariat industriel et l'urbanisation massive", "La fin des échanges commerciaux", "La stabilité sociale"], answer: 1, explanation: "Les paysans migrent vers les villes pour travailler en usine dans des conditions souvent terribles, créant la classe ouvrière (prolétariat) analysée par Marx." },
+          { q: "Le taylorisme est :", options: ["Une philosophie de vie", "L'organisation scientifique du travail pour maximiser la productivité", "Un mouvement syndical", "Une forme de protectionnisme"], answer: 1, explanation: "Frederick Taylor (1856-1915) décompose le travail en tâches élémentaires répétitives pour optimiser chaque geste. Ford applique ces principes avec la chaîne de montage." },
+          { q: "La deuxième révolution industrielle (fin XIXe) est fondée sur :", options: ["La vapeur et le charbon", "L'électricité, l'acier et le pétrole", "L'énergie nucléaire", "Les énergies renouvelables"], answer: 1, explanation: "La seconde révolution industrielle voit l'émergence de l'électricité (Edison, Tesla), de l'automobile (Ford), de l'acier et de l'industrie chimique." },
+        ],
+      },
+      {
+        id: "hist_5", title: "Les grandes explorations", emoji: "🧭", tag: "HISTOIRE",
+        definition: "Période d'expansion maritime européenne (XVe-XVIIe siècles) durant laquelle Portugal, Espagne, puis France, Angleterre et Pays-Bas explorent et cartographient le monde, établissant colonies et routes commerciales.",
+        explanation: "Motivés par le désir d'or, d'épices et la propagation du christianisme ('l'or, l'encens et la croix'), les explorateurs européens atteignent l'Amérique (Colomb, 1492), contournent l'Afrique (Vasco de Gama, 1498), circumnaviguent le globe (Magellan-Elcano, 1519-1522) et tracent les continents sur la carte.",
+        detail: "Ces explorations ont des conséquences considérables : elles enrichissent l'Europe mais entraînent la destruction des civilisations amérindiennes (Aztèques, Incas), l'esclavage transatlantique et l'échange colombien (échange de plantes, animaux, maladies entre Ancien et Nouveau Monde).",
+        example: "Christophe Colomb accoste le 12 octobre 1492 sur l'île de San Salvador (Bahamas), croyant avoir atteint les Indes. Cette date marque le début d'un contact permanent entre l'Europe et les Amériques, avec des conséquences monumentales pour l'histoire mondiale.",
+        questions: [
+          { q: "Qui atteint l'Amérique en 1492 ?", options: ["Vasco de Gama", "Magellan", "Christophe Colomb", "Jacques Cartier"], answer: 2, explanation: "Christophe Colomb, navigateur génois au service de l'Espagne, atteint les Caraïbes le 12 octobre 1492 en cherchant une route vers l'Asie." },
+          { q: "Vasco de Gama est célèbre pour avoir :", options: ["Découvert le Brésil", "Contourné l'Afrique pour atteindre les Indes (1498)", "Fait le premier tour du monde", "Exploré le fleuve Amazone"], answer: 1, explanation: "En 1498, le Portugais Vasco de Gama contourne le cap de Bonne-Espérance et atteint Calicut (Inde), ouvrant la route maritime vers les épices." },
+          { q: "L'expédition de Magellan-Elcano (1519-1522) accomplit :", options: ["La découverte de l'Australie", "Le premier tour du monde complet", "La cartographie de l'Arctique", "La conquête du Mexique"], answer: 1, explanation: "Partie d'Espagne avec 5 navires et 270 hommes, l'expédition revient avec un seul navire et 18 survivants — mais accomplit le premier circumnavigation de la Terre." },
+          { q: "L'échange colombien désigne :", options: ["Le commerce entre Colomb et les rois espagnols", "L'échange de plantes, animaux et maladies entre l'Ancien et le Nouveau Monde", "Le traité de partage du monde entre Espagne et Portugal", "Le commerce d'esclaves transatlantique"], answer: 1, explanation: "L'échange colombien transforme les deux mondes : la pomme de terre, le maïs et la tomate arrivent en Europe ; le cheval, les bovins et les maladies (variole) devastent les Amériques." },
+          { q: "Le Traité de Tordesillas (1494) :", options: ["Met fin à la guerre de Cent Ans", "Partage le monde entre Espagne et Portugal", "Fonde la Compagnie des Indes", "Interdit l'esclavage"], answer: 1, explanation: "Ce traité, arbitré par le pape, divise le monde en deux zones d'influence : à l'Espagne l'ouest (Amériques sauf Brésil), au Portugal l'est (Afrique, Asie, Brésil)." },
+        ],
+      },
+      {
+        id: "hist_6", title: "L'Antiquité grecque", emoji: "🏺", tag: "HISTOIRE",
+        definition: "Civilisation qui se développe en Grèce et en Méditerranée orientale du IXe au IIe siècle av. J.-C., fondatrice de la démocratie, de la philosophie, des sciences et des arts occidentaux.",
+        explanation: "Les cités-États grecques (poleis) comme Athènes et Sparte développent des formes de gouvernement variées. Athènes invente la démocratie directe sous Clisthène et Périclès. La philosophie naît avec Socrate, Platon et Aristote. Les Jeux olympiques rassemblent les Grecs tous les quatre ans.",
+        detail: "La Grèce antique connaît plusieurs périodes : archaïque (800-500 av. J.-C.), classique (500-323 av. J.-C., apogée d'Athènes, guerres médiques contre la Perse) et hellénistique (323-31 av. J.-C., après Alexandre le Grand). Rome hérite et diffuse la culture grecque.",
+        example: "Le Parthénon (447-432 av. J.-C.), temple dédié à Athéna sur l'Acropole d'Athènes, est le symbole de l'architecture grecque classique. Ses 46 colonnes doriques et ses frises sculptées par Phidias représentent l'apogée de l'art grec. Les Marbres d'Elgin controversés sont en partie au British Museum.",
+        questions: [
+          { q: "La démocratie athénienne est inventée par :", options: ["Socrate", "Périclès", "Clisthène", "Alexandre"], answer: 2, explanation: "Clisthène réforme Athènes vers 508 av. J.-C. pour créer les bases de la démocratie (isonomia, égalité devant la loi). Périclès la porte à son apogée au Ve siècle." },
+          { q: "Les guerres médiques opposent :", options: ["Athènes à Sparte", "La Grèce à la Perse", "Rome à la Grèce", "La Macédoine à Athènes"], answer: 1, explanation: "Les guerres médiques (490-479 av. J.-C.) voient les cités grecques, menées par Athènes, repousser les invasions de l'Empire perse de Darius puis Xerxès." },
+          { q: "Socrate est célèbre pour :", options: ["Avoir fondé l'Académie", "Sa méthode de dialogue questionnant les certitudes (maïeutique)", "Avoir conquis l'Égypte", "Avoir écrit L'Iliade"], answer: 1, explanation: "Socrate (470-399 av. J.-C.) n'a rien écrit lui-même. Sa méthode consiste à questionner les interlocuteurs pour les amener à trouver la vérité par eux-mêmes — on la connaît par les écrits de Platon." },
+          { q: "Alexandre le Grand étend son empire jusqu'à :", options: ["L'Inde", "La Chine", "L'Afrique subsaharienne", "L'Europe du Nord"], answer: 0, explanation: "Alexandre (356-323 av. J.-C.) conquiert la Perse, l'Égypte, et pousse jusqu'aux rives de l'Indus en Inde, créant le plus grand empire de l'histoire antique." },
+          { q: "Les premiers Jeux olympiques de l'Antiquité ont lieu :", options: ["À Athènes en 776 av. J.-C.", "À Olympie en 776 av. J.-C.", "À Sparte en 500 av. J.-C.", "À Rome en 100 av. J.-C."], answer: 1, explanation: "Les Jeux olympiques antiques se déroulent à Olympie (Péloponnèse) depuis 776 av. J.-C. en l'honneur de Zeus, tous les quatre ans, avec une trêve sacrée entre les cités." },
+        ],
+      },
+      {
+        id: "hist_7", title: "L'Empire romain", emoji: "⚔️", tag: "HISTOIRE",
+        definition: "État antique centré sur Rome qui, de sa fondation légendaire en 753 av. J.-C. à la chute de l'Empire romain d'Occident en 476 ap. J.-C., domine le bassin méditerranéen et laisse un héritage durable sur le droit, la langue et la culture européenne.",
+        explanation: "Rome passe de la royauté (753-509 av. J.-C.) à la République (509-27 av. J.-C.), puis à l'Empire (27 av. J.-C.-476 ap. J.-C.). À son apogée au IIe siècle, l'Empire couvre 5 millions de km², de l'Écosse à la Mésopotamie, avec environ 70 millions d'habitants.",
+        detail: "L'héritage romain est immense : le droit romain fonde nos systèmes juridiques, le latin engendre les langues romanes (français, espagnol, italien, portugais, roumain), le réseau routier de 80 000 km structure l'Europe, et l'Empire diffuse le christianisme via l'édit de Milan (313 ap. J.-C.) de Constantin.",
+        example: "Le Colisée de Rome (75-80 ap. J.-C.), amphithéâtre pouvant accueillir 50 000 à 80 000 spectateurs, accueillait des combats de gladiateurs, des chasses d'animaux exotiques et des exécutions. Il reste l'un des monuments les plus visités au monde avec ~7 millions de visiteurs par an.",
+        questions: [
+          { q: "Qui est le premier empereur romain ?", options: ["Jules César", "Auguste", "Néron", "Constantin"], answer: 1, explanation: "Auguste (63 av. J.-C. - 14 ap. J.-C.), neveu et fils adoptif de César, devient le premier princeps (emperor) en 27 av. J.-C. après la victoire d'Actium." },
+          { q: "Jules César est assassiné le :", options: ["14 mars 44 av. J.-C.", "15 mars 44 av. J.-C. (les Ides de Mars)", "1er janvier 45 av. J.-C.", "30 décembre 44 av. J.-C."], answer: 1, explanation: "César est poignardé par des sénateurs (dont Brutus et Cassius) le 15 mars 44 av. J.-C. au pied de la statue de Pompée. Les 'Ides de Mars' sont entrées dans l'histoire." },
+          { q: "L'édit de Milan (313) proclame :", options: ["L'abolition de l'esclavage", "La tolérance religieuse et la liberté du christianisme", "La division de l'Empire", "La fin des jeux de gladiateurs"], answer: 1, explanation: "Constantin et Licinius accordent la liberté de culte à tous, notamment aux chrétiens, par l'édit de Milan. Le christianisme deviendra religion d'État en 380 sous Théodose." },
+          { q: "La chute de l'Empire romain d'Occident a lieu en :", options: ["180 ap. J.-C.", "313 ap. J.-C.", "476 ap. J.-C.", "1054 ap. J.-C."], answer: 2, explanation: "En 476, le chef barbare Odoacre dépose Romulus Augustule, dernier empereur romain d'Occident. Cette date marque conventionnellement la fin de l'Antiquité." },
+          { q: "Les langues romanes (français, espagnol, etc.) dérivent de :", options: ["Le grec ancien", "Le latin vulgaire parlé dans l'Empire romain", "Le germanique", "L'arabe"], answer: 1, explanation: "Le latin vulgaire (langue populaire) parlé dans l'Empire romain évolue différemment selon les régions pour donner le français, l'espagnol, l'italien, le portugais et le roumain." },
+        ],
+      },
+      {
+        id: "hist_8", title: "La Guerre froide", emoji: "🌐", tag: "HISTOIRE",
+        definition: "Période de tension géopolitique (1947-1991) entre les États-Unis et l'URSS, deux superpuissances aux idéologies opposées (capitalisme libéral vs. communisme), sans affrontement militaire direct mais avec de nombreux conflits par procuration.",
+        explanation: "Après la Seconde Guerre mondiale, le monde se divise en deux blocs : occidental (États-Unis, OTAN) et oriental (URSS, Pacte de Varsovie). La course aux armements nucléaires, la conquête spatiale, les crises (Berlin, Cuba) et les guerres par procuration (Corée, Vietnam) marquent cette période.",
+        detail: "La Guerre froide se termine avec l'effondrement du bloc soviétique : Mur de Berlin (novembre 1989), indépendance des pays d'Europe de l'Est, dissolution de l'URSS le 25 décembre 1991. Mikhail Gorbatchev et ses réformes (glasnost, perestroïka) jouent un rôle décisif.",
+        example: "La crise des missiles de Cuba (octobre 1962) est le moment le plus dangereux de la Guerre froide : pendant 13 jours, les États-Unis et l'URSS sont au bord de la guerre nucléaire après la découverte de missiles soviétiques à Cuba. La résolution diplomatique entre Kennedy et Khrouchtchev évite le pire.",
+        questions: [
+          { q: "Les deux superpuissances de la Guerre froide sont :", options: ["France et Allemagne", "États-Unis et Chine", "États-Unis et URSS", "OTAN et Chine"], answer: 2, explanation: "La Guerre froide oppose les États-Unis (capitalisme libéral, démocratie) à l'URSS (communisme, parti unique) de 1947 à 1991." },
+          { q: "Le Mur de Berlin est construit pour :", options: ["Séparer l'Allemagne de la France", "Empêcher les Allemands de l'Est de fuir vers l'Ouest", "Protéger Berlin des bombardements", "Délimiter les zones d'occupation"], answer: 1, explanation: "Construit en août 1961 par l'RDA, le Mur de Berlin empêche l'hémorragie de population vers l'Ouest : 2,7 millions d'Allemands de l'Est avaient fui entre 1949 et 1961." },
+          { q: "La crise des missiles de Cuba (1962) est résolue par :", options: ["Une invasion américaine de Cuba", "Un accord diplomatique : retrait des missiles soviétiques contre garanties américaines", "Une guerre nucléaire limitée", "L'intervention de l'ONU"], answer: 1, explanation: "Kennedy et Khrouchtchev s'accordent : l'URSS retire ses missiles de Cuba contre la promesse des États-Unis de ne pas envahir Cuba et de retirer des missiles Jupiter de Turquie." },
+          { q: "La 'course à l'espace' voit l'URSS réaliser en premier :", options: ["L'alunissage", "Le premier satellite (Spoutnik, 1957) et le premier homme dans l'espace (Gagarine, 1961)", "La navette spatiale", "Le télescope orbital"], answer: 1, explanation: "L'URSS remporte deux victoires majeures : Spoutnik 1 (4 octobre 1957), premier satellite artificiel, et Youri Gagarine (12 avril 1961), premier humain dans l'espace." },
+          { q: "La dissolution de l'URSS a lieu :", options: ["Novembre 1989", "Décembre 1991", "Janvier 1993", "Août 1991"], answer: 1, explanation: "Mikhaïl Gorbatchev démissionne le 25 décembre 1991 et l'URSS cesse d'exister. Les 15 républiques soviétiques deviennent des États indépendants." },
+        ],
+      },
+      {
+        id: "hist_9", title: "La colonisation et la décolonisation", emoji: "🌏", tag: "HISTOIRE",
+        definition: "La colonisation est l'expansion des puissances européennes sur d'autres continents (XIXe-XXe siècles). La décolonisation est le processus par lequel les colonies obtiennent leur indépendance (1945-1975), transformant la carte mondiale.",
+        explanation: "Au XIXe siècle, les puissances européennes (Royaume-Uni, France, Belgique, Allemagne...) se partagent l'Afrique et l'Asie, motivées par des intérêts économiques et une idéologie de 'civilisation'. Après 1945, affaiblis par la guerre, ils font face à des mouvements d'indépendance qui libèrent progressivement les colonies.",
+        detail: "La Conférence de Berlin (1884-1885) organise le partage de l'Afrique entre puissances européennes sans consulter les Africains. La décolonisation prend diverses formes : négociée (Ghana, 1957) ou violente (Algérie 1954-1962, Indochine 1945-1954, Angola, Mozambique). Elle laisse des héritages complexes : frontières artificielles, inégalités économiques, néocolonialisme.",
+        example: "La guerre d'Algérie (1954-1962) oppose le FLN (Front de Libération Nationale) à la France pendant 8 ans. Elle cause 300 000 à 1,5 million de morts (estimations très divergentes), se termine par les accords d'Évian et l'indépendance algérienne le 5 juillet 1962. Elle reste un sujet sensible dans les mémoires française et algérienne.",
+        questions: [
+          { q: "La Conférence de Berlin (1884-1885) :", options: ["Réunit les pays africains pour leur indépendance", "Organise le partage de l'Afrique entre puissances européennes", "Fonde la SDN", "Déclare l'abolition de l'esclavage"], answer: 1, explanation: "Sans aucun représentant africain, les puissances européennes se partagent l'Afrique en zones d'influence selon leurs intérêts, sans tenir compte des réalités ethniques ou culturelles." },
+          { q: "Quel pays africain est le premier à accéder à l'indépendance au Sud du Sahara ?", options: ["Nigeria", "Kenya", "Ghana", "Sénégal"], answer: 2, explanation: "Le Ghana (ancienne Côte-de-l'Or britannique) devient indépendant le 6 mars 1957 sous la conduite de Kwame Nkrumah, premier leader anticolonialiste africain de grande envergure." },
+          { q: "L'Algérie obtient son indépendance en :", options: ["1954", "1958", "1962", "1968"], answer: 2, explanation: "Les accords d'Évian signés le 18 mars 1962 mettent fin à la guerre d'Algérie. L'indépendance est proclamée le 5 juillet 1962, date choisie en référence à l'invasion française du 5 juillet 1830." },
+          { q: "Le néocolonialisme désigne :", options: ["Le retour de la colonisation directe", "L'influence économique et politique maintenue sur les anciennes colonies sans contrôle territorial direct", "La colonisation de l'espace", "Une forme de tourisme dans les anciennes colonies"], answer: 1, explanation: "Après l'indépendance formelle, beaucoup d'anciennes colonies restent dépendantes économiquement (dette, matières premières) ou politiquement de leurs anciens colonisateurs." },
+          { q: "Gandhi mène l'indépendance de quel pays par la non-violence ?", options: ["Le Kenya", "L'Inde", "L'Algérie", "L'Afrique du Sud"], answer: 1, explanation: "Mahatma Gandhi (1869-1948) développe la résistance non-violente (ahimsa, satyagraha) pour libérer l'Inde de la domination britannique, aboutissant à l'indépendance le 15 août 1947." },
+        ],
+      },
+      {
+        id: "hist_10", title: "La Révolution numérique", emoji: "💻", tag: "HISTOIRE",
+        definition: "Transformation profonde des sociétés depuis les années 1970-1980, liée à l'invention du microprocesseur, d'Internet et des technologies numériques, comparable en ampleur à la Révolution industrielle.",
+        explanation: "Le microprocesseur (Intel, 1971) rend les ordinateurs personnels possibles. ARPANET (1969) devient Internet. Le World Wide Web de Tim Berners-Lee (1991) ouvre Internet au grand public. Les smartphones (iPhone, 2007), les réseaux sociaux et l'intelligence artificielle accélèrent la transformation de toutes les sphères de la société.",
+        detail: "La révolution numérique crée de nouvelles économies (GAFAM : Google, Amazon, Facebook, Apple, Microsoft), de nouveaux modes de communication (e-mail, SMS, réseaux sociaux), transforme le travail (automatisation, télétravail), la culture (streaming, Wikipedia) et pose de nouveaux défis : vie privée, désinformation, fracture numérique, impact environnemental.",
+        example: "La création du World Wide Web par Tim Berners-Lee en 1991 au CERN (Genève) est souvent comparée à l'invention de l'imprimerie par Gutenberg en 1450 : elle démocratise l'accès au savoir et transforme la communication mondiale. Berners-Lee a mis sa technologie dans le domaine public, permettant son développement gratuit.",
+        questions: [
+          { q: "ARPANET, ancêtre d'Internet, est créé par :", options: ["Microsoft", "Le Pentagone / DARPA (armée américaine)", "IBM", "Les universités californiennes"], answer: 1, explanation: "ARPANET est financé par l'Agence DARPA du Département de la Défense américain en 1969, initialement pour créer un réseau de communication résistant à une attaque nucléaire." },
+          { q: "Tim Berners-Lee invente le World Wide Web en :", options: ["1969", "1984", "1991", "1998"], answer: 2, explanation: "Tim Berners-Lee propose le WWW en 1989 et le met en œuvre en 1991 au CERN. Il le met dans le domaine public, permettant à tout le monde de l'utiliser gratuitement." },
+          { q: "Le premier iPhone est lancé par Apple en :", options: ["2001", "2004", "2007", "2010"], answer: 2, explanation: "Steve Jobs présente l'iPhone le 9 janvier 2007. Il révolutionne l'industrie mobile en combinant téléphone, iPod et Internet dans un appareil tactile." },
+          { q: "L'acronyme GAFAM désigne :", options: ["Des organisations internationales", "Les cinq grandes entreprises technologiques américaines (Google, Amazon, Facebook, Apple, Microsoft)", "Des institutions financières mondiales", "Des agences gouvernementales numériques"], answer: 1, explanation: "Les GAFAM dominent l'économie numérique mondiale avec des capitalisations boursières dépassant la plupart des PIB nationaux." },
+          { q: "La fracture numérique désigne :", options: ["Le crash d'Internet en 2000", "L'inégalité d'accès aux technologies numériques entre populations et pays", "La fin des médias traditionnels", "La guerre des brevets technologiques"], answer: 1, explanation: "La fracture numérique sépare ceux qui ont accès aux technologies et peuvent les utiliser (populations aisées, pays développés) de ceux qui en sont exclus, creusant les inégalités mondiales." },
+        ],
+      },
+    ];
+
+    // ─── LEGACY LESSONS ───────────────────────────────────────────────────────────
+    const ALL_LESSONS = [
+      { id: 1, title: "La Joconde", emoji: "🖼️", tag: "ART", description: "Le tableau le plus célèbre du monde décrypté", xp: 50,
+        content: { story: "Chaque année, 10 millions de visiteurs se pressent au Louvre pour voir une toile de 77 × 53 cm. Derrière le sourire énigmatique de Mona Lisa se cachent des siècles de fascination et des innovations techniques révolutionnaires.", concept: "La Joconde (1503-1519) de Léonard de Vinci illustre la technique du sfumato : des contours flous, sans lignes nettes, qui créent une impression de profondeur et de vie. Le sourire semble changer selon l'angle de vision — une illusion optique calculée.", tip: "Regardez les yeux de la Joconde depuis le côté : ils semblent vous suivre. Léonard place les lumières et les ombres pour que l'expression varie selon l'angle de vision du spectateur." },
+        questions: [
+          { q: "Qui a peint la Joconde ?", options: ["Michel-Ange", "Raphaël", "Léonard de Vinci", "Botticelli"], answer: 2, explanation: "Léonard de Vinci peint la Joconde entre 1503 et 1519. Elle représente probablement Lisa Gherardini, épouse d'un marchand florentin." },
+          { q: "Qu'est-ce que le sfumato ?", options: ["Un type de cadre doré", "La technique des contours flous créant profondeur et vie", "Un pigment rouge utilisé par Léonard", "Le nom de l'atelier de Vinci"], answer: 1, explanation: "Le sfumato (de l'italien 'sfumare', s'estomper) est la technique de Léonard qui supprime les lignes nettes et crée des transitions douces entre lumière et ombre." },
+          { q: "Où est conservée la Joconde ?", options: ["Au Prado à Madrid", "À la Galerie des Offices à Florence", "Au musée du Louvre à Paris", "Au Metropolitan Museum de New York"], answer: 2, explanation: "La Joconde est exposée au musée du Louvre depuis 1797. Elle est protégée par un verre blindé et maintenue à température et humidité contrôlées." },
+        ],
+      },
+      { id: 2, title: "La mémoire historique", emoji: "🕰️", tag: "HISTOIRE", description: "Pourquoi étudier le passé change le présent", xp: 75,
+        content: { story: "George Santayana écrivait : 'Ceux qui ne peuvent pas se souvenir du passé sont condamnés à le répéter.' La crise de 2008 avait des précédents en 1929. Les génocides du XXe siècle avaient des signaux d'alerte ignorés.", concept: "La mémoire historique, c'est la capacité collective d'une société à tirer des leçons du passé. Elle permet d'identifier des schémas récurrents : montée des autoritarismes, crises économiques, conflits géopolitiques.", tip: "Quand un événement actuel semble sans précédent, cherchez ses analogies historiques. Elles ne prédisent pas l'avenir mais offrent un cadre d'analyse précieux." },
+        questions: [
+          { q: "La crise financière de 1929 a comme point commun avec celle de 2008 :", options: ["Aucun, elles sont totalement différentes", "L'effondrement du système bancaire amplifié par la spéculation", "La même cause : hausse du pétrole", "La même solution : plan Marshall"], answer: 1, explanation: "Les deux crises sont précédées par une bulle spéculative (actions en 1929, immobilier en 2008) et une crise bancaire en cascade. L'étude de 1929 a aidé à éviter la répétition exacte en 2008." },
+          { q: "Le devoir de mémoire signifie :", options: ["Oublier les événements douloureux", "Reconnaître et transmettre les tragédies historiques pour éviter de les répéter", "Célébrer uniquement les victoires nationales", "Garder les archives secrètes"], answer: 1, explanation: "Le devoir de mémoire, notamment envers les victimes de la Shoah, des génocides et des crimes contre l'humanité, est un impératif moral et pédagogique." },
+          { q: "Qu'est-ce qu'un anachronisme ?", options: ["Un monument ancien", "L'erreur qui consiste à appliquer des concepts d'une époque à une autre", "Un type de source historique", "Un outil de datation"], answer: 1, explanation: "Juger les personnes du passé selon les valeurs d'aujourd'hui est un anachronisme fréquent. L'historien replace les actions dans leur contexte contemporain." },
+        ],
+      },
+      { id: 3, title: "Les symboles culturels", emoji: "🔑", tag: "CULTURE", description: "Décoder les icônes qui façonnent notre monde", xp: 60,
+        content: { story: "La Tour Eiffel, construite pour être temporaire en 1889, est aujourd'hui le symbole de Paris. Big Ben évoque Londres. Le Colisée, Rome. Ces monuments sont devenus des raccourcis cognitifs pour des cultures entières.", concept: "Un symbole culturel est un objet, image ou concept qui représente une valeur, une identité ou une époque pour un groupe humain. Ils évoluent : la croix gammée était un symbole de bon augure dans plusieurs cultures avant d'être approprié par le nazisme.", tip: "La signification des symboles n'est jamais universelle ni figée. Ce qui est sacré dans une culture peut être banal dans une autre. La conscience de cette relativité est la base de l'intelligence culturelle." },
+        questions: [
+          { q: "La Tour Eiffel a été construite pour :", options: ["Servir de résidence à Gustave Eiffel", "L'Exposition universelle de 1889, comme structure temporaire", "Commémorer la Révolution française de 1789", "Servir de tour de contrôle militaire"], answer: 1, explanation: "Gustave Eiffel conçoit la tour pour l'Exposition universelle de 1889, centenaire de la Révolution. Prévue pour être démolie, elle est sauvée par son utilisation comme antenne de radio." },
+          { q: "Un symbole culturel peut :", options: ["Avoir une seule signification universelle", "Évoluer et changer de signification selon l'époque et la culture", "Être compris de la même façon partout dans le monde", "Ne pas évoluer dans le temps"], answer: 1, explanation: "La signification des symboles est construite socialement et varie selon les cultures et les époques. Le même objet peut avoir des significations radicalement différentes selon le contexte." },
+          { q: "L'intelligence culturelle consiste à :", options: ["Connaître toutes les langues du monde", "Comprendre et respecter les différences culturelles dans les codes et valeurs", "Rejeter sa propre culture", "Imiter les cultures étrangères"], answer: 1, explanation: "L'intelligence culturelle (CQ) est la capacité à fonctionner efficacement dans des contextes culturels différents du sien — compétence essentielle dans un monde globalisé." },
+        ],
+      },
+    ];
+
+    const ACHIEVEMENTS = [
+      { id: "first", label: "Première leçon", emoji: "🌱", condition: (s) => s.lessonsCompleted >= 1 },
+      { id: "perfect", label: "Réponse parfaite", emoji: "⭐", condition: (s) => s.perfectLessons >= 1 },
+      { id: "xp100", label: "100 XP atteints", emoji: "💎", condition: (s) => s.totalXP >= 100 },
+      { id: "art", label: "Module Art & Culture", emoji: "🎨", condition: (s) => (s.completedModules || []).some(m => m.startsWith("art")) },
+      { id: "histoire", label: "Module Histoire", emoji: "🏛️", condition: (s) => (s.completedModules || []).some(m => m.startsWith("hist")) },
+      { id: "allmodules", label: "Tous les modules", emoji: "🎓", condition: (s) => (s.completedModules || []).length >= ART_MODULES.length + HISTORY_MODULES.length },
+    ];
+
+    // ─── COMPONENTS ───────────────────────────────────────────────────────────────
+    function Block({ label, color, children, C }) {
+      return (
+        <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px", marginBottom: 12 }}>
+          <div style={{ fontSize: "0.65rem", fontWeight: 600, color, letterSpacing: 1, marginBottom: 8 }}>{label}</div>
+          <p style={{ fontSize: "0.84rem", color: C.textSub, lineHeight: 1.7, margin: 0 }}>{children}</p>
+        </div>
+      );
+    }
+
+    function TopBar({ onBack, progress, total, lives, C }) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 28 }}>
+          <button onClick={onBack} style={{ background: "none", border: "none", color: C.textMuted, fontSize: "1.1rem", cursor: "pointer", padding: "4px 8px 4px 0", fontFamily: "'DM Sans'" }}>←</button>
+          <div style={{ flex: 1, height: 3, background: C.border, borderRadius: 999 }}>
+            <div style={{ width: `${(progress / total) * 100}%`, height: "100%", background: C.blue, borderRadius: 999, transition: "width 0.4s ease" }} />
+          </div>
+          <div style={{ display: "flex", gap: 3 }}>
+            {[...Array(3)].map((_, i) => (
+              <span key={i} style={{ fontSize: "0.85rem", opacity: i < lives ? 1 : 0.2, transition: "opacity 0.3s" }}>♥</span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function BottomNav({ screen, setScreen, C }) {
+      return (
+        <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: C.bg, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-around", padding: "14px 0 22px" }}>
+          {[["Accueil", "home", "○"], ["Cours", "courses", "◈"], ["Profil", "profile", "◇"]].map(([label, s, icon]) => (
+            <div key={s} onClick={() => setScreen(s)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", opacity: screen === s ? 1 : 0.3, transition: "opacity 0.2s" }}>
+              <span style={{ fontSize: "1rem", color: screen === s ? C.blue : C.textMuted }}>{icon}</span>
+              <span style={{ fontSize: "0.62rem", fontWeight: 600, color: screen === s ? C.blue : C.textMuted, letterSpacing: 0.5 }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function btnStyle(color) {
+      return { width: "100%", padding: "15px", borderRadius: 13, border: "none", background: color, color: "#fff", fontWeight: 600, fontSize: "0.9rem", cursor: "pointer", transition: "all 0.2s", fontFamily: "'DM Sans'" };
+    }
+
+    // ─── MAIN APP ─────────────────────────────────────────────────────────────────
+    function Kulture() {
+      const [darkMode, setDarkMode] = useState(false);
+      const C = darkMode ? DARK : LIGHT;
+
+      const [screen, setScreen] = useState("home");
+      const [courseSection, setCourseSection] = useState("art");
+      const [moduleView, setModuleView] = useState(null);
+      const [moduleMode, setModuleMode] = useState("sheet");
+
+      const [lesson, setLesson] = useState(null);
+      const [step, setStep] = useState(0);
+      const [selected, setSelected] = useState(null);
+      const [showExp, setShowExp] = useState(false);
+      const [lives, setLives] = useState(3);
+      const [answers, setAnswers] = useState([]);
+      const [earnedXP, setEarnedXP] = useState(0);
+      const [showContent, setShowContent] = useState(true);
+
+      const [modStep, setModStep] = useState(0);
+      const [modSelected, setModSelected] = useState(null);
+      const [modShowExp, setModShowExp] = useState(false);
+      const [modLives, setModLives] = useState(3);
+      const [modAnswers, setModAnswers] = useState([]);
+
+      const [stats, setStats] = useState({
+        totalXP: 0, streak: 0, lessonsCompleted: 0,
+        perfectLessons: 0, completedLessons: [],
+        completedModules: [],
+      });
+
+      const [showSettings, setShowSettings] = useState(false);
+
+      const resetProgress = () => {
+        setStats({ totalXP: 0, streak: 0, lessonsCompleted: 0, perfectLessons: 0, completedLessons: [], completedModules: [] });
+        setShowSettings(false);
+      };
+
+      const done = (id) => stats.completedLessons.includes(id);
+      const moduleDone = (id) => (stats.completedModules || []).includes(id);
+
+      const startLesson = (l) => {
+        setLesson(l); setStep(0); setSelected(null); setShowExp(false);
+        setLives(3); setAnswers([]); setEarnedXP(0); setShowContent(true);
+        setScreen("lesson");
+      };
+
+      const startModule = (mod, mode) => {
+        setModuleView(mod);
+        setModuleMode(mode);
+        if (mode === "quiz") {
+          setModStep(0); setModSelected(null); setModShowExp(false);
+          setModLives(3); setModAnswers([]);
+        }
+        setScreen("module");
+      };
+
+      const handleAnswer = (idx) => {
+        if (showExp) return;
+        setSelected(idx); setShowExp(true);
+        const correct = idx === lesson.questions[step].answer;
+        setAnswers((prev) => [...prev, correct]);
+        if (!correct) setLives((l) => Math.max(0, l - 1));
+      };
+
+      const handleModAnswer = (idx) => {
+        if (modShowExp) return;
+        setModSelected(idx); setModShowExp(true);
+        const correct = idx === moduleView.questions[modStep].answer;
+        setModAnswers((prev) => [...prev, correct]);
+        if (!correct) setModLives((l) => Math.max(0, l - 1));
+      };
+
+      const next = () => {
+        const isLast = step + 1 >= lesson.questions.length;
+        if (isLast) {
+          const total = [...answers, selected === lesson.questions[step].answer].filter(Boolean).length;
+          const xp = Math.round((total / lesson.questions.length) * lesson.xp);
+          setEarnedXP(xp);
+          setStats((prev) => ({
+            ...prev, totalXP: prev.totalXP + xp,
+            lessonsCompleted: done(lesson.id) ? prev.lessonsCompleted : prev.lessonsCompleted + 1,
+            perfectLessons: total === lesson.questions.length ? prev.perfectLessons + 1 : prev.perfectLessons,
+            completedLessons: done(lesson.id) ? prev.completedLessons : [...prev.completedLessons, lesson.id],
+          }));
+          setScreen("result");
+        } else {
+          setStep((s) => s + 1); setSelected(null); setShowExp(false);
+        }
+      };
+
+      const nextMod = () => {
+        const isLast = modStep + 1 >= moduleView.questions.length;
+        if (isLast) {
+          const total = modAnswers.filter(Boolean).length;
+          const xp = Math.round((total / moduleView.questions.length) * 80);
+          setStats((prev) => ({
+            ...prev, totalXP: prev.totalXP + xp,
+            perfectLessons: total === moduleView.questions.length ? prev.perfectLessons + 1 : prev.perfectLessons,
+            completedModules: moduleDone(moduleView.id) ? prev.completedModules : [...(prev.completedModules || []), moduleView.id],
+          }));
+          setScreen("modresult");
+        } else {
+          setModStep((s) => s + 1); setModSelected(null); setModShowExp(false);
+        }
+      };
+
+      const correctTotal = [...answers, selected === (lesson?.questions[step]?.answer)].filter(Boolean).length;
+      const modCorrectTotal = modAnswers.filter(Boolean).length;
+
+      return (
+        <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+
+          {/* ── HOME ── */}
+          {screen === "home" && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "32px 20px 90px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 40 }}>
+                <div>
+                  <div style={{ fontSize: "1.3rem", fontWeight: 700, letterSpacing: "-0.5px" }}>Kulture</div>
+                  <div style={{ fontSize: "0.73rem", color: C.textMuted, marginTop: 3 }}>Culture générale, un concept à la fois</div>
+                </div>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <button onClick={() => setDarkMode(d => !d)} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 12px", cursor: "pointer", fontSize: "0.75rem", color: C.blue, fontWeight: 600, fontFamily: "'DM Sans'", transition: "all 0.2s" }}>
+                    {darkMode ? "☀️ Clair" : "🌙 Sombre"}
+                  </button>
+                  <div onClick={() => setScreen("profile")} className="card-hover" style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 16px", textAlign: "right" }}>
+                    <div style={{ fontSize: "0.6rem", color: C.textMuted, fontWeight: 500, letterSpacing: 0.5 }}>XP</div>
+                    <div style={{ fontSize: "1rem", fontWeight: 700, color: C.gold, fontFamily: "'DM Mono'", marginTop: 1 }}>{stats.totalXP}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 14 }}>Cours complets</div>
+              <div style={{ display: "flex", gap: 10, marginBottom: 28 }}>
+                {[
+                  { key: "art", label: "Art & Culture", emoji: "🎨", color: "#1B4FD8", desc: "10 modules" },
+                  { key: "histoire", label: "Histoire", emoji: "🏛️", color: "#0EA672", desc: "10 modules" }
+                ].map(c => (
+                  <div key={c.key} className="card-hover" onClick={() => { setCourseSection(c.key); setScreen("courses"); }} style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 14px", animation: "fadeUp 0.3s ease" }}>
+                    <div style={{ fontSize: "1.6rem", marginBottom: 10 }}>{c.emoji}</div>
+                    <div style={{ fontWeight: 700, fontSize: "0.85rem", marginBottom: 4 }}>{c.label}</div>
+                    <div style={{ fontSize: "0.7rem", color: C.textMuted }}>{c.desc}</div>
+                    <div style={{ marginTop: 10, fontSize: "0.65rem", color: c.color, fontWeight: 600 }}>Explorer →</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 14 }}>Leçons rapides</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {[ART_MODULES.find(mod => !moduleDone(mod.id)), HISTORY_MODULES.find(mod => !moduleDone(mod.id))].filter(Boolean).map((mod, i) => (
+                  <div key={mod.id} className="card-hover" onClick={() => startModule(mod, "sheet")} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: "18px 20px", animation: `fadeUp ${0.2 + i * 0.07}s ease` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{ width: 42, height: 42, borderRadius: 11, background: mod.tag === "ART" ? C.blueDim : C.successDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", flexShrink: 0 }}>{mod.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                          <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>{mod.title}</span>
+                          <span style={{ fontSize: "0.58rem", fontWeight: 600, color: mod.tag === "ART" ? C.blue : C.success, background: mod.tag === "ART" ? C.blueDim : C.successDim, padding: "2px 7px", borderRadius: 999, letterSpacing: 0.5 }}>{mod.tag}</span>
+                        </div>
+                        <div style={{ fontSize: "0.73rem", color: C.textMuted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mod.definition.slice(0, 60)}…</div>
+                      </div>
+                      <div style={{ flexShrink: 0, textAlign: "right" }}>
+                        <div style={{ fontSize: "0.72rem", color: C.blue, fontWeight: 600, fontFamily: "'DM Mono'" }}>+80</div>
+                        <div style={{ fontSize: "0.6rem", color: C.textMuted, marginTop: 1 }}>XP</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <BottomNav screen={screen} setScreen={setScreen} C={C} />
+            </div>
+          )}
+
+          {/* ── COURSES LIST ── */}
+          {screen === "courses" && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "28px 20px 90px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+                <button onClick={() => setScreen("home")} style={{ background: "none", border: "none", color: C.textMuted, fontSize: "1.1rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>←</button>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: "1.05rem" }}>{courseSection === "art" ? "🎨 Art & Culture" : "🏛️ Histoire"}</div>
+                  <div style={{ fontSize: "0.7rem", color: C.textMuted, marginTop: 2 }}>10 modules · Fiches + QCM</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                {["art", "histoire"].map(s => (
+                  <button key={s} onClick={() => setCourseSection(s)} style={{ padding: "7px 16px", borderRadius: 999, border: `1px solid ${courseSection === s ? C.blue : C.border}`, background: courseSection === s ? C.blueDim : "transparent", color: courseSection === s ? C.blue : C.textMuted, fontSize: "0.75rem", fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans'" }}>{s === "art" ? "🎨 Art & Culture" : "🏛️ Histoire"}</button>
+                ))}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {(courseSection === "art" ? ART_MODULES : HISTORY_MODULES).map((mod, i) => {
+                  const isDone = moduleDone(mod.id);
+                  return (
+                    <div key={mod.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: "16px 18px", animation: `fadeUp ${0.15 + i * 0.05}s ease` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                        <div style={{ width: 38, height: 38, borderRadius: 10, background: C.blueDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>{mod.emoji}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                            <span style={{ fontWeight: 600, fontSize: "0.87rem" }}>{mod.title}</span>
+                            {isDone && <span style={{ fontSize: "0.55rem", fontWeight: 600, color: C.success, background: C.successDim, padding: "2px 6px", borderRadius: 999 }}>FAIT</span>}
+                          </div>
+                          <div style={{ fontSize: "0.68rem", color: C.textMuted, marginTop: 2, lineHeight: 1.4 }}>{mod.definition.slice(0, 60)}…</div>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={() => startModule(mod, "sheet")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.textSub, fontWeight: 600, fontSize: "0.75rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>📖 Fiche cours</button>
+                        <button onClick={() => startModule(mod, "quiz")} style={{ flex: 1, padding: "9px", borderRadius: 10, border: "none", background: C.blue, color: "#fff", fontWeight: 600, fontSize: "0.75rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>✏️ QCM</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: 24, marginBottom: 8, textAlign: "center" }}>
+                <span style={{ fontSize: "0.62rem", color: C.textMuted, fontWeight: 400, letterSpacing: 0.3 }}>
+                  ✦ Contenu des cours généré par IA
+                </span>
+              </div>
+              <BottomNav screen={screen} setScreen={setScreen} C={C} />
+            </div>
+          )}
+
+          {/* ── MODULE SHEET ── */}
+          {screen === "module" && moduleView && moduleMode === "sheet" && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "28px 20px 40px", animation: "fadeUp 0.3s ease" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+                <button onClick={() => setScreen("courses")} style={{ background: "none", border: "none", color: C.textMuted, fontSize: "1.1rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>←</button>
+                <span style={{ fontSize: "0.63rem", fontWeight: 600, color: C.blue, letterSpacing: 1 }}>{moduleView.tag}</span>
+              </div>
+              <div style={{ fontSize: "2rem", marginBottom: 10 }}>{moduleView.emoji}</div>
+              <div style={{ fontSize: "1.4rem", fontWeight: 700, letterSpacing: "-0.3px", marginBottom: 20 }}>{moduleView.title}</div>
+              <div style={{ background: C.blueDim, border: `1px solid ${C.blueBorder}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.blue, letterSpacing: 1, marginBottom: 6 }}>DÉFINITION</div>
+                <p style={{ fontSize: "0.85rem", color: C.text, lineHeight: 1.65, margin: 0, fontWeight: 500 }}>{moduleView.definition}</p>
+              </div>
+              <Block label="EXPLICATION SIMPLE" color={C.textMuted} C={C}>{moduleView.explanation}</Block>
+              <Block label="POUR ALLER PLUS LOIN" color={C.blue} C={C}>{moduleView.detail}</Block>
+              <div style={{ background: C.goldDim, border: `1px solid rgba(201,168,76,0.2)`, borderRadius: 14, padding: "14px 16px", marginBottom: 28 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.gold, letterSpacing: 1, marginBottom: 6 }}>EXEMPLE CONCRET</div>
+                <p style={{ fontSize: "0.82rem", color: C.textSub, lineHeight: 1.65, margin: 0 }}>{moduleView.example}</p>
+              </div>
+              <button className="btn" onClick={() => startModule(moduleView, "quiz")} style={btnStyle(C.blue)}>
+                Tester ses connaissances (QCM)
+              </button>
+            </div>
+          )}
+
+          {/* ── MODULE QUIZ ── */}
+          {screen === "module" && moduleView && moduleMode === "quiz" && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "28px 20px 40px" }}>
+              <TopBar onBack={() => setScreen("courses")} progress={modStep} total={moduleView.questions.length} lives={modLives} C={C} />
+              <div key={modStep} style={{ animation: "fadeUp 0.3s ease" }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 6 }}>{moduleView.title}</div>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 14 }}>QUESTION {modStep + 1} / {moduleView.questions.length}</div>
+                <div style={{ fontSize: "1rem", fontWeight: 600, lineHeight: 1.55, marginBottom: 26 }}>{moduleView.questions[modStep].q}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 22 }}>
+                  {moduleView.questions[modStep].options.map((opt, idx) => {
+                    const isCorrect = idx === moduleView.questions[modStep].answer;
+                    const isSelected = idx === modSelected;
+                    let bg = C.surface, border = C.border, textColor = C.text;
+                    if (modShowExp && isCorrect) { bg = C.successDim; border = C.success; textColor = C.success; }
+                    if (modShowExp && isSelected && !isCorrect) { bg = C.errorDim; border = C.error; textColor = C.error; }
+                    return (
+                      <button key={idx} className={!modShowExp ? "ans-btn" : ""} onClick={() => handleModAnswer(idx)} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: "14px 15px", color: textColor, fontWeight: 500, fontSize: "0.85rem", cursor: modShowExp ? "default" : "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 12, fontFamily: "'DM Sans'", transition: "all 0.15s" }}>
+                        <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, background: modShowExp && isCorrect ? "rgba(14,166,114,0.2)" : modShowExp && isSelected && !isCorrect ? "rgba(224,62,62,0.2)" : C.blueDim, color: modShowExp && isCorrect ? C.success : modShowExp && isSelected && !isCorrect ? C.error : C.blue, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.67rem", fontWeight: 700 }}>{String.fromCharCode(65 + idx)}</span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                {modShowExp && (
+                  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 15px", marginBottom: 18, animation: "fadeIn 0.25s ease" }}>
+                    <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 6 }}>EXPLICATION</div>
+                    <p style={{ fontSize: "0.81rem", color: C.textSub, lineHeight: 1.65, margin: 0 }}>{moduleView.questions[modStep].explanation}</p>
+                  </div>
+                )}
+                {modShowExp && (
+                  <button className="btn" onClick={nextMod} style={{ ...btnStyle(C.blue), animation: "fadeUp 0.2s ease" }}>
+                    {modStep + 1 >= moduleView.questions.length ? "Voir les résultats" : "Continuer"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── MODULE RESULT ── */}
+          {screen === "modresult" && moduleView && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "52px 20px 40px", textAlign: "center", animation: "scaleIn 0.35s ease" }}>
+              <div style={{ fontSize: "2.8rem", marginBottom: 18 }}>
+                {modCorrectTotal >= moduleView.questions.length ? "🏆" : modCorrectTotal >= 3 ? "⭐" : "💪"}
+              </div>
+              <div style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: 5 }}>
+                {modCorrectTotal >= moduleView.questions.length ? "Parfait !" : modCorrectTotal >= 3 ? "Bien joué !" : "Continue d'apprendre"}
+              </div>
+              <div style={{ fontSize: "0.78rem", color: C.textMuted, marginBottom: 34 }}>{modCorrectTotal}/{moduleView.questions.length} bonnes réponses</div>
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px", marginBottom: 20 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 10 }}>XP GAGNÉ</div>
+                <div style={{ fontSize: "2.6rem", fontWeight: 700, color: C.gold, fontFamily: "'DM Mono'" }}>+{Math.round((modCorrectTotal / moduleView.questions.length) * 80)}</div>
+                <div style={{ fontSize: "0.7rem", color: C.textMuted, marginTop: 7 }}>Total : {stats.totalXP} XP</div>
+              </div>
+              <button className="btn" onClick={() => startModule(moduleView, "sheet")} style={{ ...btnStyle("transparent"), border: `1px solid ${C.border}`, color: C.textSub, marginBottom: 10 }}>Revoir la fiche</button>
+              <button className="btn" onClick={() => setScreen("courses")} style={btnStyle(C.blue)}>Retour aux cours</button>
+            </div>
+          )}
+
+          {/* ── LESSON CONTENT ── */}
+          {screen === "lesson" && lesson && showContent && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "28px 20px 40px", animation: "fadeUp 0.3s ease" }}>
+              <TopBar onBack={() => setScreen("home")} progress={0} total={lesson.questions.length} lives={lives} C={C} />
+              <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.blue, letterSpacing: 1.2, marginBottom: 8 }}>{lesson.tag}</div>
+              <div style={{ fontSize: "1.45rem", fontWeight: 700, marginBottom: 6, letterSpacing: "-0.3px" }}>{lesson.title}</div>
+              <div style={{ fontSize: "0.8rem", color: C.textMuted, marginBottom: 26 }}>{lesson.description}</div>
+              <Block label="EN PRATIQUE" color={C.textMuted} C={C}>{lesson.content.story}</Block>
+              <Block label="LE CONCEPT" color={C.blue} C={C}>{lesson.content.concept}</Block>
+              <div style={{ background: C.goldDim, border: `1px solid rgba(201,168,76,0.15)`, borderRadius: 14, padding: "14px 16px", marginBottom: 32 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.gold, letterSpacing: 1, marginBottom: 6 }}>À RETENIR</div>
+                <p style={{ fontSize: "0.82rem", color: C.textSub, lineHeight: 1.65, margin: 0 }}>{lesson.content.tip}</p>
+              </div>
+              <button className="btn" onClick={() => setShowContent(false)} style={btnStyle(C.blue)}>Commencer le quiz</button>
+            </div>
+          )}
+
+          {/* ── LESSON QUIZ ── */}
+          {screen === "lesson" && lesson && !showContent && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "28px 20px 40px" }}>
+              <TopBar onBack={() => setScreen("home")} progress={step} total={lesson.questions.length} lives={lives} C={C} />
+              <div key={step} style={{ animation: "fadeUp 0.3s ease" }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 14 }}>QUESTION {step + 1} / {lesson.questions.length}</div>
+                <div style={{ fontSize: "1rem", fontWeight: 600, lineHeight: 1.55, marginBottom: 26 }}>{lesson.questions[step].q}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 22 }}>
+                  {lesson.questions[step].options.map((opt, idx) => {
+                    const isCorrect = idx === lesson.questions[step].answer;
+                    const isSelected = idx === selected;
+                    let bg = C.surface, border = C.border, textColor = C.text;
+                    if (showExp && isCorrect) { bg = C.successDim; border = C.success; textColor = C.success; }
+                    if (showExp && isSelected && !isCorrect) { bg = C.errorDim; border = C.error; textColor = C.error; }
+                    return (
+                      <button key={idx} className={!showExp ? "ans-btn" : ""} onClick={() => handleAnswer(idx)} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: "14px 15px", color: textColor, fontWeight: 500, fontSize: "0.85rem", cursor: showExp ? "default" : "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 12, fontFamily: "'DM Sans'", transition: "all 0.15s" }}>
+                        <span style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, background: showExp && isCorrect ? "rgba(14,166,114,0.2)" : showExp && isSelected && !isCorrect ? "rgba(224,62,62,0.2)" : C.blueDim, color: showExp && isCorrect ? C.success : showExp && isSelected && !isCorrect ? C.error : C.blue, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.67rem", fontWeight: 700 }}>{String.fromCharCode(65 + idx)}</span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+                {showExp && (
+                  <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: "13px 15px", marginBottom: 18, animation: "fadeIn 0.25s ease" }}>
+                    <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 6 }}>EXPLICATION</div>
+                    <p style={{ fontSize: "0.81rem", color: C.textSub, lineHeight: 1.65, margin: 0 }}>{lesson.questions[step].explanation}</p>
+                  </div>
+                )}
+                {showExp && (
+                  <button className="btn" onClick={next} style={{ ...btnStyle(C.blue), animation: "fadeUp 0.2s ease" }}>
+                    {step + 1 >= lesson.questions.length ? "Voir les résultats" : "Continuer"}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── LESSON RESULT ── */}
+          {screen === "result" && lesson && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "52px 20px 40px", textAlign: "center", animation: "scaleIn 0.35s ease" }}>
+              <div style={{ fontSize: "2.8rem", marginBottom: 18 }}>
+                {correctTotal >= lesson.questions.length ? "🏆" : correctTotal >= 2 ? "⭐" : "💪"}
+              </div>
+              <div style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: 5 }}>
+                {correctTotal >= lesson.questions.length ? "Parfait !" : correctTotal >= 2 ? "Bien joué !" : "Continue d'apprendre"}
+              </div>
+              <div style={{ fontSize: "0.78rem", color: C.textMuted, marginBottom: 34 }}>{correctTotal}/{lesson.questions.length} bonnes réponses</div>
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px", marginBottom: 12 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 10 }}>XP GAGNÉ</div>
+                <div style={{ fontSize: "2.6rem", fontWeight: 700, color: C.gold, fontFamily: "'DM Mono'" }}>+{earnedXP}</div>
+                <div style={{ fontSize: "0.7rem", color: C.textMuted, marginTop: 7 }}>Total : {stats.totalXP} XP</div>
+              </div>
+              <div style={{ display: "flex", gap: 10, marginBottom: 30 }}>
+                {[{ label: "Réponses", value: `${correctTotal}/${lesson.questions.length}` }, { label: "Vies", value: `${lives}/3` }].map((s) => (
+                  <div key={s.label} style={{ flex: 1, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 13, padding: "13px" }}>
+                    <div style={{ fontSize: "1.1rem", fontWeight: 700 }}>{s.value}</div>
+                    <div style={{ fontSize: "0.65rem", color: C.textMuted, marginTop: 4 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+              <button className="btn" onClick={() => setScreen("home")} style={{ ...btnStyle(C.blue), marginBottom: 10 }}>Retour à l'accueil</button>
+              <button onClick={() => startLesson(lesson)} style={{ width: "100%", padding: "13px", borderRadius: 12, border: `1px solid ${C.border}`, background: "transparent", color: C.textSub, fontWeight: 500, fontSize: "0.85rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>Recommencer</button>
+            </div>
+          )}
+
+          {/* ── PROFILE ── */}
+          {screen === "profile" && (
+            <div style={{ maxWidth: 440, margin: "0 auto", padding: "32px 20px 90px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26 }}>
+                <div style={{ fontWeight: 700, fontSize: "1.1rem" }}>Profil</div>
+                <button onClick={() => setShowSettings(true)} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "7px 13px", cursor: "pointer", fontSize: "0.75rem", color: C.textSub, fontWeight: 600, fontFamily: "'DM Sans'", display: "flex", alignItems: "center", gap: 6 }}>⚙️ Paramètres</button>
+              </div>
+
+              {showSettings && (
+                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center", animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ background: C.surface, borderRadius: "22px 22px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 440, border: `1px solid ${C.border}`, animation: "fadeUp 0.25s ease" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 22 }}>
+                      <div style={{ fontWeight: 700, fontSize: "1rem" }}>⚙️ Paramètres</div>
+                      <button onClick={() => setShowSettings(false)} style={{ background: "none", border: "none", color: C.textMuted, fontSize: "1.2rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>✕</button>
+                    </div>
+                    <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+                      <div style={{ fontWeight: 600, fontSize: "0.85rem", marginBottom: 4 }}>Réinitialiser la progression</div>
+                      <div style={{ fontSize: "0.73rem", color: C.textMuted, marginBottom: 14 }}>Remet à zéro tous les XP, modules et leçons complétés. Cette action est irréversible.</div>
+                      <button onClick={resetProgress} style={{ width: "100%", padding: "11px", borderRadius: 10, background: C.errorDim, border: `1px solid ${C.error}`, color: C.error, fontWeight: 700, fontSize: "0.82rem", cursor: "pointer", fontFamily: "'DM Sans'" }}>🗑️ Réinitialiser toute la progression</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 18, padding: "22px", marginBottom: 22 }}>
+                <div style={{ fontSize: "0.63rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1, marginBottom: 14 }}>STATISTIQUES</div>
+                <div style={{ display: "flex" }}>
+                  {[
+                    { label: "XP total", value: stats.totalXP, mono: true, color: C.gold },
+                    { label: "Leçons", value: stats.lessonsCompleted },
+                    { label: "Modules", value: (stats.completedModules || []).length },
+                  ].map((s, i) => (
+                    <div key={s.label} style={{ flex: 1, textAlign: "center", borderLeft: i > 0 ? `1px solid ${C.border}` : "none", padding: "0 8px" }}>
+                      <div style={{ fontSize: "1.1rem", fontWeight: 700, color: s.color || C.text, fontFamily: s.mono ? "'DM Mono'" : "inherit" }}>{s.value}</div>
+                      <div style={{ fontSize: "0.6rem", color: C.textMuted, marginTop: 4 }}>{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 12 }}>Succès</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 22 }}>
+                {ACHIEVEMENTS.map((a) => {
+                  const unlocked = a.condition(stats);
+                  return (
+                    <div key={a.id} style={{ background: C.surface, border: `1px solid ${unlocked ? C.borderLight : C.border}`, borderRadius: 13, padding: "15px", opacity: unlocked ? 1 : 0.35 }}>
+                      <div style={{ fontSize: "1.4rem", marginBottom: 8, filter: unlocked ? "none" : "grayscale(1)" }}>{a.emoji}</div>
+                      <div style={{ fontWeight: 600, fontSize: "0.78rem" }}>{a.label}</div>
+                      {unlocked && <div style={{ fontSize: "0.63rem", color: C.success, marginTop: 4, fontWeight: 600 }}>Débloqué</div>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ fontSize: "0.65rem", fontWeight: 600, color: C.textMuted, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 12 }}>Progression modules</div>
+
+              <div style={{ fontSize: "0.7rem", fontWeight: 600, color: C.blue, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>🎨 Art & Culture</div>
+              {ART_MODULES.map((mod) => (
+                <div key={mod.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 13, padding: "13px 15px", marginBottom: 8, display: "flex", alignItems: "center", gap: 13 }}>
+                  <span style={{ fontSize: "1rem" }}>{mod.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 500, fontSize: "0.78rem", marginBottom: 6 }}>{mod.title}</div>
+                    <div style={{ height: 3, background: C.border, borderRadius: 999 }}>
+                      <div style={{ width: moduleDone(mod.id) ? "100%" : "0%", height: "100%", background: C.blue, borderRadius: 999, transition: "width 0.5s ease" }} />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "0.75rem", color: moduleDone(mod.id) ? C.success : C.textMuted }}>{moduleDone(mod.id) ? "✓" : "○"}</span>
+                </div>
+              ))}
+
+              <div style={{ fontSize: "0.7rem", fontWeight: 600, color: C.success, marginTop: 18, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>🏛️ Histoire</div>
+              {HISTORY_MODULES.map((mod) => (
+                <div key={mod.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 13, padding: "13px 15px", marginBottom: 8, display: "flex", alignItems: "center", gap: 13 }}>
+                  <span style={{ fontSize: "1rem" }}>{mod.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 500, fontSize: "0.78rem", marginBottom: 6 }}>{mod.title}</div>
+                    <div style={{ height: 3, background: C.border, borderRadius: 999 }}>
+                      <div style={{ width: moduleDone(mod.id) ? "100%" : "0%", height: "100%", background: C.success, borderRadius: 999, transition: "width 0.5s ease" }} />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "0.75rem", color: moduleDone(mod.id) ? C.success : C.textMuted }}>{moduleDone(mod.id) ? "✓" : "○"}</span>
+                </div>
+              ))}
+
+              <BottomNav screen={screen} setScreen={setScreen} C={C} />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Kulture />);
+  </script>
+</body>
+</html>
